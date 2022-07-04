@@ -20,12 +20,6 @@
     group: "{{ ansible_user }}"
     mode: '0755'
 
-- name: Copy config {{appname}} config
-  copy:
-    src: "templates/{{appname}}/config/"
-    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/
-    mode: '0644'
-
 - name: "Manage artemis container state - {{appstate}} - {{ips.artemis}}"
   docker_container:
     name: "artemis"
