@@ -13,7 +13,7 @@
 
 - name: Template {{appname}} config
   ansible.builtin.template:
-    src: templates/{{appname}}/config/config.template.yml
+    src: templates/{{appname}}/config/config.template.j2
     dest: /home/{{ ansible_user }}/apps/{{appname}}/config/config.yml
     mode: '0644'
 

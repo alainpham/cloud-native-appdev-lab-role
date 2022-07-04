@@ -85,5 +85,3 @@
 #     regexp: '^.*{{appconfig[appname].ip}}\s.*$'
 #     line: "{{appconfig[appname].ip}} {{appname}}"
 #     state: present
-
-

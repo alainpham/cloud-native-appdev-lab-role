@@ -140,7 +140,7 @@
     env:
       KAFKA_BROKERCONNECT: "{{appconfig[appname].ip}}:9092"
       JVM_OPTS: -Xms32M -Xmx128M
-      SERVER_SERVLET_CONTEXTPATH : "/"
+      SERVER_SERVLET_CONTEXTPATH: "/"
     ports:
     labels: |
       {

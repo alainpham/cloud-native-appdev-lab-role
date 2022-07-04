@@ -10,7 +10,8 @@ galaxy_info:
 
   galaxy_tags:
     - traefik
-    - docker-registry
+    - docker
+    - registry
     - keycloak
     - portainer
     - nexus
@@ -18,7 +19,8 @@ galaxy_info:
     - loki
     - grafana
     - kafka
-    - activemq-artemis
+    - activemq
+    - artemis
     - postgres
     - ci-cd
     - java

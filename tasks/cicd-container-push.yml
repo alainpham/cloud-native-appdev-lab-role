@@ -1,6 +1,5 @@
 
 # assumes that variable the following varibale is present
-
 - name: tag container images for registries
   shell: | 
     docker tag {{item.0.artifactId}}:{{item.0.buildVersion}}-{{arch}} {{item.1}}/{{item.0.artifactId}}:{{item.0.buildVersion}}-{{arch}}
