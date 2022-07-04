@@ -22,7 +22,7 @@ galaxy_info:
     - activemq
     - artemis
     - postgres
-    - ci-cd
+    - cicd
     - java
 
 dependencies: []
