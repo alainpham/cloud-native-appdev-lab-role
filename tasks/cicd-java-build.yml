@@ -1,5 +1,4 @@
 
-# assumes that variable the following varibale is present
 - name: Create {{appname}} folders
   when: item.cleanStart
   file:
