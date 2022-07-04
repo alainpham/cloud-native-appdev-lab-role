@@ -1,0 +1,50 @@
+---
+- set_fact:
+    appname: postgres
+
+- name: Create {{appname}} folders
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}/data
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+
+- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
+  docker_container:
+    name: "{{appname}}"
+    image: "{{appconfig[appname].image}}"
+    state: "{{appstate}}"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    detach: true
+    user: "1000:1000"
+    # command: postgres -c ssl=on -c ssl_cert_file=/var/lib/postgresql/tls/work.pem -c ssl_key_file=/var/lib/postgresql/tls/work.key
+    command:
+    env:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: db
+    ports:
+    labels: |
+      {
+        "traefik.enable": "false",
+      }
+    volumes:
+      - "/home/{{ansible_user}}/apps/{{appname}}/data:/var/lib/postgresql/data:rw"
+      # - "/home/{{ansible_user}}/apps/tls/:/var/lib/postgresql/tls:ro"
+    networks_cli_compatible: yes
+    network_mode: primenet
+    networks:
+      - name: primenet
+        ipv4_address: "{{appconfig[appname].ip}}"
+
+- name: add to /etc/hosts
+  become: true
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^.*{{appconfig[appname].ip}}\s.*$'
+    line: "{{appconfig[appname].ip}} {{appname}}"
+    state: present

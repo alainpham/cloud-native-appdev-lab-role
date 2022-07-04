@@ -1,0 +1,55 @@
+---
+- set_fact:
+    appname: loki
+
+- name: Create {{appname}} folders
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}/config/
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Create {{appname}} folders
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}/data
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copy config {{appname}} config
+  copy:
+    src: "templates/{{appname}}/config/"
+    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/
+    mode: '0644'
+
+- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
+  docker_container:
+    name: "{{appname}}"
+    image: "{{appconfig[appname].image}}"
+    state: "{{appstate}}"
+    recreate: "{{recreate}}"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    detach: true
+    user: "1000:1000"
+    command: "-config.file=/mnt/config/config.yml"
+    env:
+    ports:
+    labels: |
+      {
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "80",
+        "traefik.http.routers.{{appname}}.entrypoints": "https",
+        "traefik.http.routers.{{appname}}.tls": "true"
+      }
+    volumes:
+      - /home/{{ ansible_user }}/apps/{{appname}}/config/:/mnt/config:ro
+      - /home/{{ ansible_user }}/apps/{{appname}}/data/:/data/:rw
+    networks_cli_compatible: yes
+    network_mode: primenet
+    networks:
+      - name: primenet
+        ipv4_address: "{{appconfig[appname].ip}}"

@@ -1,0 +1,10 @@
+# my global config
+global:
+  scrape_interval: 8s
+  evaluation_interval: 8s
+# remote_write:
+#   - url: https://somemimir/api/prom/push
+#     basic_auth:
+#       username: 433408
+#       password: 
+{% include 'scrape_configs.yml' %}

@@ -1,0 +1,89 @@
+---
+- set_fact:
+    appname: keycloak
+
+- name: Create {{appname}} folders
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}/config/
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copy config {{appname}} config
+  copy:
+    src: "templates/{{appname}}/config/"
+    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/
+    mode: '0644'
+
+- name: Create {{appname}} folders
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}/data
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
+  docker_container:
+    name: "{{appname}}"
+    image: "{{appconfig[appname].image}}"
+    state: "{{appstate}}"
+    recreate: "{{recreate}}"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    detach: true
+    user: "1000:1000"
+    command: start
+    env:
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME: "{{appname}}.{{ansible_hostname}}.lan"
+      # KC_HOSTNAME_ADMIN: "{{appname}}.{{ansible_hostname}}.lan"
+      KC_PROXY: edge
+      # KC_HOSTNAME_PORT:  "443"
+      # KC_HOSTNAME_STRICT: "true"
+      # KC_HOSTNAME: "172.18.0.80"
+      # KC_HOSTNAME_PORT:  "8443"
+      # KC_HTTPS_CERTIFICATE_FILE: /certs/{{ansible_hostname}}.pem
+      # KC_HTTPS_CERTIFICATE_KEY_FILE: /certs/{{ansible_hostname}}.key
+      # KC_HEALTH_ENABLED: "true"
+      # KC_METRICS_ENABLED: "true"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: password
+    ports:
+    # labels: |
+    #   {
+    #     "traefik.tcp.services.{{appname}}.loadbalancer.server.port": "8443",
+    #     "traefik.tcp.routers.{{appname}}.entrypoints": "https",
+    #     "traefik.tcp.routers.{{appname}}.tls": "true",
+    #     "traefik.tcp.routers.{{appname}}.tls.passthrough": "true",
+    #     "traefik.tcp.routers.{{appname}}.rule": "HostSNI(`{{appname}}.{{ansible_hostname}}.lan`)",
+    #     "traefik.tcp.routers.{{appname}}.service": "{{appname}}",
+    #   }
+    labels: |
+      {
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "8080",
+        "traefik.http.routers.{{appname}}.entrypoints": "https",
+        "traefik.http.routers.{{appname}}.tls": "true",
+      }
+    volumes:
+      # - "/home/{{ansible_user}}/apps/tls:/certs:ro"
+      - "/home/{{ ansible_user }}/apps/{{appname}}/data:/opt/keycloak/data:rw"
+    networks_cli_compatible: yes
+    network_mode: primenet
+    networks:
+      - name: primenet
+        ipv4_address: "{{appconfig[appname].ip}}"
+
+
+# - name: add to /etc/hosts
+#   become: true
+#   lineinfile:
+#     dest: /etc/hosts
+#     regexp: '^.*{{appconfig[appname].ip}}\s.*$'
+#     line: "{{appconfig[appname].ip}} {{appname}}"
+#     state: present
+
+

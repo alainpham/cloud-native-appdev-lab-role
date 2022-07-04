@@ -1,0 +1,52 @@
+---
+- set_fact:
+    appname: traefik
+
+- name: Create {{appname}} folders
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}/config/
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Template {{appname}} config
+  ansible.builtin.template:
+    src: templates/{{appname}}/config/traefik.ansible.template.yml
+    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/traefik.yml
+    mode: '0644'
+
+- name: Template {{appname}} tls
+  ansible.builtin.template:
+    src: templates/{{appname}}/config/tls.ansible.template.yml
+    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/tls.yml
+    mode: '0644'
+
+- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
+  docker_container:
+    name: "{{appname}}"
+    image: "{{appconfig[appname].image}}"
+    state: "{{appstate}}"
+    recreate: "{{recreate}}"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    detach: true
+    # user: "1000:1000"
+    command:
+    env:
+    ports:
+      - "80:80"
+      - "8080:8080"
+      - "443:443"
+    labels: 
+    volumes:
+      - "/home/{{ansible_user}}/apps/{{appname}}/config/traefik.yml:/etc/traefik/traefik.yml:ro"
+      - "/home/{{ansible_user}}/apps/{{appname}}/config/tls.yml:/config/tls.yml:ro"
+      - "/home/{{ansible_user}}/apps/tls:/certs:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks_cli_compatible: yes
+    network_mode: primenet
+    networks:
+      - name: primenet
+        ipv4_address: "{{appconfig[appname].ip}}"

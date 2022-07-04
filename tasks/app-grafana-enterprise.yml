@@ -1,0 +1,90 @@
+---
+- set_fact:
+    appname: grafana-enterprise
+
+- name: Create {{appname}} folders
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}/config/
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copy config {{appname}} config
+  copy:
+    src: "templates/grafana/config/"
+    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/
+    mode: '0644'
+
+- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
+  docker_container:
+    name: "{{appname}}"
+    image: "{{appconfig[appname].image}}"
+    state: "{{appstate}}"
+    recreate: "{{recreate}}"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    detach: true
+    user: "1000:1000"
+    command: 
+    env:
+      GF_SERVER_DOMAIN: "grafana-enterprise.work.lan"
+      GF_SERVER_ROOT_URL: https://grafana-enterprise.work.lan/
+      GF_ENTERPRISE_LICENSE_TEXT: "{{ secretappconfig[appname].license }}"
+      GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
+      GF_AUTH_GENERIC_OAUTH_NAME: "Login Keycloak"
+      GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP: "true"
+      GF_AUTH_GENERIC_OAUTH_CLIENT_ID: "grafana-enterprise.work.lan"
+      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "GRWAUbQNry432eEEash26TiEukxOhWhh"
+      GF_AUTH_GENERIC_OAUTH_SCOPES: profile
+      GF_AUTH_GENERIC_OAUTH_AUTH_URL: "https://keycloak.work.lan/realms/grafana/protocol/openid-connect/auth"
+      GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "https://keycloak.work.lan/realms/grafana/protocol/openid-connect/token"
+      GF_AUTH_GENERIC_OAUTH_API_URL: "https://keycloak.work.lan/realms/grafana/protocol/openid-connect/userinfo"
+      GF_AUTH_SIGNOUT_REDIRECT_URL: "https://keycloak.work.lan/realms/grafana/protocol/openid-connect/logout"
+      GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(realm_access.roles[*], 'grafana-admin') && 'Admin' || contains(realm_access.roles[*], 'grafana-editor') && 'Editor' || 'Viewer'"
+    ports:
+    labels: |
+      {
+        "traefik.http.routers.{{appname}}.entrypoints": "https",
+        "traefik.http.routers.{{appname}}.tls": "true"
+      }
+    volumes:
+      - /home/{{ansible_user}}/apps/grafana-enterprise/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/grafana-datasources.yml:ro
+      - /home/{{ansible_user}}/apps/grafana-enterprise/config/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - /home/{{ansible_user}}/apps/tls/{{ansible_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
+    networks_cli_compatible: yes
+    network_mode: primenet
+    networks:
+      - name: primenet
+        ipv4_address: "{{appconfig[appname].ip}}"
+
+- name: Check if server is up
+  when: appstate == 'started'
+  uri:
+    url: "https://{{appname}}.{{ansible_hostname}}.lan/api/health"
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 2
+
+- name: Reset password
+  when: appstate == 'started'
+  ignore_errors: true
+  uri:
+    url: "https://{{appname}}.{{ansible_hostname}}.lan/api/user/password"
+    user: "admin"
+    password: "admin"
+    method: PUT
+    body: |
+      {
+        "oldPassword": "admin",
+        "newPassword": "password"
+      }
+    force_basic_auth: yes
+    status_code: 200
+    headers:
+      Content-Type: application/json
+      accept: application/json

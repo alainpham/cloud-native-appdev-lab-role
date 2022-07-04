@@ -1,0 +1,114 @@
+---
+
+appconfig:
+
+  # functional apps
+  rentman: 
+    ip: 172.18.0.20 
+    image: 
+  bqueue: 
+    ip: 172.18.0.21
+    image: 
+  plex:
+    ip: 172.18.0.22
+    image:
+  teddycast: 
+    ip: 172.18.0.23
+    image:
+  
+  # platform essentials
+  portainer: 
+    ip: 172.18.0.40
+    image: portainer/portainer-ce:2.14.0
+  nexus: 
+    ip: 172.18.0.41
+    image: sonatype/nexus3:3.40.1
+  registry: 
+    ip: 172.18.0.42
+    image: registry:2.8.1
+  regui: 
+    ip: 172.18.0.45
+    image: joxit/docker-registry-ui:2.2.1
+  traefik: 
+    ip: 172.18.0.43
+    image: traefik:v2.8
+  fileserver: 
+    ip: 172.18.0.47
+  keycloak: 
+    ip: 172.18.0.48
+    image: quay.io/keycloak/keycloak:18.0.2
+
+  # databases
+  mysql: 
+    ip: 172.18.0.50
+  oracle: 
+    ip: 172.18.0.51 
+  couchbase: 
+    ip: 172.18.0.52 
+  infinispan:
+    ip: 172.18.0.53 
+  postgres: 
+    ip: 172.18.0.54
+    image: postgres:14.4
+  elastic:
+    ip: 172.18.0.55
+  kibana:
+    ip: 172.18.0.56
+  adminer:
+    ip: 172.18.0.57
+    image: adminer:4.8.1
+
+  # messaging
+  zookeeper: 
+    ip: 172.18.0.61
+  kafka: 
+    ip: 172.18.0.62
+    image: quay.io/strimzi/kafka:0.29.0-kafka-3.1.0
+  kafdrop: 
+    ip: 172.18.0.63
+    image: obsidiandynamics/kafdrop:3.30.0
+  kafkaexporter:
+    ip: 172.18.0.64
+  kafkaui: 
+    ip: 172.18.0.65
+    image: provectuslabs/kafka-ui:v0.4.0
+  artemis: 
+    ip: 172.18.0.66
+    image: alainpham/artemis:1.0.5
+
+  # observability
+  prometheus: 
+    ip: 172.18.0.70
+    image: prom/prometheus:v2.36.2
+  grafana: 
+    ip: 172.18.0.71
+    image: grafana/grafana:9.0.2
+  loki: 
+    ip: 172.18.0.72
+    image: grafana/loki:2.5.0
+  promtail: 
+    ip: 172.18.0.73
+    image: grafana/promtail:2.5.0
+  grafana-enterprise: 
+    ip: 172.18.0.74
+    image: grafana/grafana-enterprise:9.0.2
+  grafana-agent:
+    ip: 172.18.0.75
+    image: grafana/agent:v0.25.1
+
+# states can absent present stopped started
+appstate: started
+recreate: false
+
+secretappconfig:
+  promtail:
+    url: to be overwrittend by group or host vars
+  grafana-enterprise:
+    license: to be overwrittend by group or host vars
+  grafana-agent:
+    metrics:
+      url: to be overwrittend by group or host vars
+      user: overwrite this
+      pwd: overwrite this
+    logs:
+      url: overwrite this

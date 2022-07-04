@@ -1,0 +1,8 @@
+jwt=$( curl -s \
+    -d "client_id=grafana.work.lan" \
+    -d "client_secret=###SECRET###" \
+    -d "username=grafana-admin-user" \
+    -d "password=password" \
+    -d "grant_type=password" \
+    https://keycloak.work.lan/realms/grafana/protocol/openid-connect/token | \
+     jq -r '.access_token' | jq -R 'split(".") | .[1] | @base64d | fromjson') 

@@ -1,0 +1,11 @@
+server:
+  http_listen_port: 80
+  grpc_listen_port: 9095
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki/loki/api/v1/push
+
+{% include 'scrape_configs.yml' %}

@@ -1,0 +1,26 @@
+galaxy_info:
+  author: Alain Pham
+  description: "Install with plain old Docker runs for dev environments a set of essential components for modern cloud native appdev stack such as Grafana, Prometheus, Loki, Kafka, Activemq Artemis, Nexus, Portainer, Traefik."
+  company: ""
+  license: license (Apache)
+  min_ansible_version: 2.10.8
+
+  platforms:
+  - name: GenericLinux
+
+  galaxy_tags:
+    - traefik
+    - docker-registry
+    - keycloak
+    - portainer
+    - nexus
+    - prometheus
+    - loki
+    - grafana
+    - kafka
+    - activemq-artemis
+    - postgres
+    - ci-cd
+    - java
+
+dependencies: []

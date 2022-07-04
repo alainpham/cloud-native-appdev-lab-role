@@ -1,0 +1,25 @@
+server:
+  log_level: info
+  http_listen_address: 0.0.0.0
+  http_listen_port: 80
+  grpc_listen_address: 0.0.0.0
+  grpc_listen_port: 9095
+
+metrics:
+  wal_directory: /grafana/wal
+  global:
+    scrape_interval: 30s
+    remote_write:
+    - url: "{{ secretappconfig['grafana-agent'].metrics.url }}"
+      basic_auth:
+        username: "{{ secretappconfig['grafana-agent'].metrics.user }}"
+        password: "{{ secretappconfig['grafana-agent'].metrics.pwd }}"
+  configs:
+    - name: allsystems
+{% filter indent(width=6) %}
+      {% include 'scrape_configs.yml' %}
+{% endfilter %}
+
+# integrations:
+#   agent:
+#     enabled: true

@@ -1,0 +1,53 @@
+---
+- set_fact:
+    appname: prometheus
+
+- name: Create {{appname}} folders
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}/config/
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Create {{appname}} folders
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}/data/
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+
+- name: Template {{appname}} config
+  ansible.builtin.template:
+    src: templates/{{appname}}/config/prometheus.template.yml
+    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/prometheus.yml
+    mode: '0644'
+
+- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
+  docker_container:
+    name: "{{appname}}"
+    image: "{{appconfig[appname].image}}"
+    state: "{{appstate}}"
+    recreate: "{{recreate}}"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    detach: true
+    user: "1000:1000"
+    env:
+    ports:
+    labels: |
+      {
+        "traefik.http.routers.{{appname}}.entrypoints": "https",
+        "traefik.http.routers.{{appname}}.tls": "true"
+      }
+    volumes:
+      - /home/{{ansible_user}}/apps/prometheus/data:/prometheus:rw
+      - /home/{{ansible_user}}/apps/prometheus/config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /home/{{ansible_user}}/apps/tls/{{ansible_hostname}}-root-ca.pem:/tls/root-ca.pem:ro
+    networks_cli_compatible: yes
+    network_mode: primenet
+    networks:
+      - name: primenet
+        ipv4_address: "{{appconfig[appname].ip}}"
