@@ -85,3 +85,48 @@
 #     regexp: '^.*{{appconfig[appname].ip}}\s.*$'
 #     line: "{{appconfig[appname].ip}} {{appname}}"
 #     state: present
+
+# setup realm
+
+- name: Check if server is up
+  when: appstate == 'started'
+  uri:
+    url: "https://{{appname}}.{{ansible_hostname}}.lan/q/health"
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 2
+
+- name: login
+  ansible.builtin.uri:
+    url: https://{{appname}}.{{ansible_hostname}}.lan/realms/master/protocol/openid-connect/token
+    method: POST
+    body_format: form-urlencoded
+    body:
+      grant_type: password
+      client_id: admin-cli
+      username: admin
+      password: password
+  register: login
+
+- name: delete realm
+  ansible.builtin.uri:
+    url: https://keycloak.work.lan/admin/realms/grafana
+    method: DELETE
+    headers: 
+      Authorization: "Bearer {{ login.json.access_token }}"
+    status_code: 204
+  ignore_errors: true
+
+- name: create realm
+  ansible.builtin.uri:
+    url: https://keycloak.work.lan/admin/realms/
+    method: POST
+    headers: 
+      Authorization: "Bearer {{ login.json.access_token }}"
+      Content-Type: "application/json"
+    src: /home/{{ ansible_user }}/apps/{{appname}}/config/grafana-realm.json
+    remote_src: yes
+    status_code: 201
