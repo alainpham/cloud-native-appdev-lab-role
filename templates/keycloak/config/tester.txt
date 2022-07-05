@@ -6,3 +6,6 @@ jwt=$( curl -s \
     -d "grant_type=password" \
     https://keycloak.work.lan/realms/grafana/protocol/openid-connect/token | \
      jq -r '.access_token' | jq -R 'split(".") | .[1] | @base64d | fromjson') 
+
+
+docker exec keycloak /opt/keycloak/bin/kc.sh export --realm apps --users realm_file --file /opt/keycloak/data/apps-realm.json

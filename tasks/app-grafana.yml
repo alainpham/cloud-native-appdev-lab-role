@@ -35,13 +35,13 @@
       GF_AUTH_GENERIC_OAUTH_NAME: "Login Keycloak"
       GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP: "true"
       GF_AUTH_GENERIC_OAUTH_CLIENT_ID: "grafana.work.lan"
-      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "3WI2GgQyYuy0yOgMv5TDAbMApdANPbm6"
+      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "SiHDbYD4EQinAcFoRT3t0XfcUL0AXvlB"
       GF_AUTH_GENERIC_OAUTH_SCOPES: profile
-      GF_AUTH_GENERIC_OAUTH_AUTH_URL: "https://keycloak.work.lan/realms/grafana/protocol/openid-connect/auth"
-      GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "https://keycloak.work.lan/realms/grafana/protocol/openid-connect/token"
-      GF_AUTH_GENERIC_OAUTH_API_URL: "https://keycloak.work.lan/realms/grafana/protocol/openid-connect/userinfo"
-      GF_AUTH_SIGNOUT_REDIRECT_URL: "https://keycloak.work.lan/realms/grafana/protocol/openid-connect/logout"
-      GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(realm_access.roles[*], 'grafana-admin') && 'Admin' || contains(realm_access.roles[*], 'grafana-editor') && 'Editor' || 'Viewer'"
+      GF_AUTH_GENERIC_OAUTH_AUTH_URL: "https://keycloak.work.lan/realms/apps/protocol/openid-connect/auth"
+      GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "https://keycloak.work.lan/realms/apps/protocol/openid-connect/token"
+      GF_AUTH_GENERIC_OAUTH_API_URL: "https://keycloak.work.lan/realms/apps/protocol/openid-connect/userinfo"
+      GF_AUTH_SIGNOUT_REDIRECT_URL: "https://keycloak.work.lan/realms/apps/protocol/openid-connect/logout"
+      GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(realm_access.roles[*], 'o11y-admin') && 'Admin' || contains(realm_access.roles[*], 'o11y-editor') && 'Editor' || 'Viewer'"
     ports:
     labels: |
       {
