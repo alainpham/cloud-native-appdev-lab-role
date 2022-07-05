@@ -1,11 +1,23 @@
-jwt=$( curl -s \
-    -d "client_id=grafana.work.lan" \
-    -d "client_secret=###SECRET###" \
-    -d "username=grafana-admin-user" \
+user=ra
+
+rawtoken=$( curl -s \
+    -d "client_id=grafana-enterprise.work.lan" \
+    -d "client_secret=e2dt6BF1roELLGmksmArt9aIgm7jB6lB" \
+    -d "username=$user" \
     -d "password=password" \
     -d "grant_type=password" \
-    https://keycloak.work.lan/realms/grafana/protocol/openid-connect/token | \
-     jq -r '.access_token' | jq -R 'split(".") | .[1] | @base64d | fromjson') 
+    https://keycloak.work.lan/realms/apps/protocol/openid-connect/token)
 
+echo $rawtoken
+
+accesstoken=$( echo $rawtoken | jq -r '.access_token')
+
+decoded=$( echo $accesstoken | jq -R 'split(".") | .[1] | @base64d | fromjson') 
+
+echo $decoded
+
+curl -s --header 'Content-Type: application/json' \
+    --header "Authorization: Bearer $accesstoken" \
+     https://keycloak.work.lan/realms/apps/protocol/openid-connect/userinfo
 
 docker exec keycloak /opt/keycloak/bin/kc.sh export --realm apps --users realm_file --file /opt/keycloak/data/apps-realm.json

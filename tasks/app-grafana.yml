@@ -39,9 +39,13 @@
       GF_AUTH_GENERIC_OAUTH_SCOPES: profile
       GF_AUTH_GENERIC_OAUTH_AUTH_URL: "https://keycloak.work.lan/realms/apps/protocol/openid-connect/auth"
       GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "https://keycloak.work.lan/realms/apps/protocol/openid-connect/token"
+      GF_AUTH_GENERIC_OAUTH_ID_TOKEN_ATTRIBUTE_NAME: "access_token"
+      GF_AUTH_GENERIC_OAUTH_LOGIN_ATTRIBUTE_PATH: "preferred_username"
       GF_AUTH_GENERIC_OAUTH_API_URL: "https://keycloak.work.lan/realms/apps/protocol/openid-connect/userinfo"
       GF_AUTH_SIGNOUT_REDIRECT_URL: "https://keycloak.work.lan/realms/apps/protocol/openid-connect/logout"
       GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(realm_access.roles[*], 'o11y-admin') && 'Admin' || contains(realm_access.roles[*], 'o11y-editor') && 'Editor' || 'Viewer'"
+      GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_STRICT: "true"
+      GF_AUTH_GENERIC_OAUTH_GROUPS_ATTRIBUTE_PATH: "groups[*]"
     ports:
     labels: |
       {
@@ -87,3 +91,48 @@
     headers:
       Content-Type: application/json
       accept: application/json
+
+
+- name: Create team
+  when: appstate == 'started'
+  ignore_errors: true
+  uri:
+    url: "https://{{appname}}.{{ansible_hostname}}.lan/api/teams"
+    user: "admin"
+    password: "password"
+    method: POST
+    body_format: json
+    body: | 
+      {
+        "name": "{{ item.name }}",
+        "email": "{{ item.name }}@lab",
+        "orgId": 1
+      }
+    force_basic_auth: yes
+    status_code: 200
+  loop:
+    - id: 1
+      name: egypt
+    - id: 2
+      name: greece
+
+- name: Create team sync
+  when: appstate == 'started'
+  ignore_errors: true
+  uri:
+    url: "https://{{appname}}.{{ansible_hostname}}.lan/api/teams/{{ item.id }}/groups"
+    user: "admin"
+    password: "password"
+    method: POST
+    body_format: json
+    body: |
+      {
+        "groupId": "/{{ item.name }}"
+      }
+    force_basic_auth: yes
+    status_code: 200
+  loop:
+    - id: 1
+      name: egypt
+    - id: 2
+      name: greece
