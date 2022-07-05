@@ -33,7 +33,7 @@
       GF_SERVER_ROOT_URL: https://grafana-enterprise.work.lan/
       GF_ENTERPRISE_LICENSE_TEXT: "{{ secretappconfig[appname].license }}"
       GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
-      GF_AUTH_GENERIC_OAUTH_NAME: "Login Keycloak"
+      GF_AUTH_GENERIC_OAUTH_NAME: "Keycloak OIDC / OAuth 2.0"
       GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP: "true"
       GF_AUTH_GENERIC_OAUTH_CLIENT_ID: "grafana-enterprise.work.lan"
       GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "e2dt6BF1roELLGmksmArt9aIgm7jB6lB"

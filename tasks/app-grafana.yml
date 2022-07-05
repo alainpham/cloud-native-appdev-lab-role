@@ -32,7 +32,7 @@
       GF_SERVER_DOMAIN: "grafana.work.lan"
       GF_SERVER_ROOT_URL: "https://grafana.work.lan/"
       GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
-      GF_AUTH_GENERIC_OAUTH_NAME: "Login Keycloak"
+      GF_AUTH_GENERIC_OAUTH_NAME: "Keycloak OIDC / OAuth 2.0"
       GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP: "true"
       GF_AUTH_GENERIC_OAUTH_CLIENT_ID: "grafana.work.lan"
       GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "SiHDbYD4EQinAcFoRT3t0XfcUL0AXvlB"
