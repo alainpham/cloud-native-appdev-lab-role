@@ -116,23 +116,3 @@
     - id: 2
       name: greece
 
-- name: Create team sync
-  when: appstate == 'started'
-  ignore_errors: true
-  uri:
-    url: "https://{{appname}}.{{ansible_hostname}}.lan/api/teams/{{ item.id }}/groups"
-    user: "admin"
-    password: "password"
-    method: POST
-    body_format: json
-    body: |
-      {
-        "groupId": "/{{ item.name }}"
-      }
-    force_basic_auth: yes
-    status_code: 200
-  loop:
-    - id: 1
-      name: egypt
-    - id: 2
-      name: greece
