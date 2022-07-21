@@ -79,26 +79,27 @@ appconfig:
   # observability
   prometheus: 
     ip: 172.18.0.70
-    image: prom/prometheus:v2.36.2
+    image: prom/prometheus:v2.37.0
   grafana: 
     ip: 172.18.0.71
-    image: grafana/grafana:9.0.2
+    image: grafana/grafana:9.0.4
   loki: 
     ip: 172.18.0.72
-    image: grafana/loki:2.5.0
+    image: grafana/loki:2.6.1
   promtail: 
     ip: 172.18.0.73
-    image: grafana/promtail:2.5.0
+    image: grafana/promtail:2.6.1
   grafana-enterprise: 
     ip: 172.18.0.74
-    image: grafana/grafana-enterprise:9.0.2
+    image: grafana/grafana-enterprise:9.0.4
   grafana-agent:
     ip: 172.18.0.75
-    image: grafana/agent:v0.25.1
+    image: grafana/agent:v0.26.0
 
 # states can absent present stopped started
 appstate: started
 recreate: false
+purge: false
 
 secretappconfig:
   promtail:

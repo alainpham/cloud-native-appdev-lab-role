@@ -2,7 +2,15 @@
 - set_fact:
     appname: loki
 
+- name: purge {{appname}} folders
+  when: purge
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}
+    state: absent
+
 - name: Create {{appname}} folders
+  when: appstate == 'started'
   become: true
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/config/
@@ -12,6 +20,7 @@
     mode: '0755'
 
 - name: Create {{appname}} folders
+  when: appstate == 'started'
   become: true
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/data
@@ -21,6 +30,7 @@
     mode: '0755'
 
 - name: Copy config {{appname}} config
+  when: appstate == 'started'
   copy:
     src: "templates/{{appname}}/config/"
     dest: /home/{{ ansible_user }}/apps/{{appname}}/config/

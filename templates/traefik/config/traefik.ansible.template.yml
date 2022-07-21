@@ -4,7 +4,7 @@
 # Docker configuration backend
 providers:
   docker:
-    defaultRule: "Host(`{{ trimPrefix `/` .Name }}.{{[ ansible_hostname ]}}.lan`)"
+    defaultRule: "Host(`{{ trimPrefix `/` .Name }}.{{[ inventory_hostname ]}}`)"
     exposedByDefault: true
   file:
     filename: "/config/tls.yml"

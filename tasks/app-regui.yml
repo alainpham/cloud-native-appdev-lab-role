@@ -2,7 +2,15 @@
 - set_fact:
     appname: regui
 
+- name: purge {{appname}} folders
+  when: purge
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}
+    state: absent
+
 - name: Create {{appname}} folders
+  when: appstate == 'started'
   become: true
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/data

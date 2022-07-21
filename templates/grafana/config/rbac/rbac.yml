@@ -1,0 +1,16 @@
+---
+apiVersion: 2
+
+roles:
+  # <string, required> name of the role you want to create or update. Required.
+  - name: 'Team Admin'
+    uid: 'teamadmin'
+    description: 'Create data sources for the team'
+    global: false
+    permissions:
+      - action: 'datasources:create'
+      - action: 'datasources:write'
+      - action: 'datasources.permissions:read'
+        scope: 'datasources:*'
+      - action: 'datasources.permissions:write'
+        scope: 'datasources:*'

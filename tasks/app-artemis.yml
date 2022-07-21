@@ -2,7 +2,15 @@
 - set_fact:
     appname: artemis
 
+- name: purge {{appname}} folders
+  when: purge
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}
+    state: absent
+
 - name: Create {{appname}} folders
+  when: appstate == 'started'
   become: true
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/data
@@ -12,6 +20,7 @@
     mode: '0755'
 
 - name: Create {{appname}} folders
+  when: appstate == 'started'
   become: true
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/config
@@ -47,12 +56,12 @@
         "traefik.tcp.services.{{appname}}.loadbalancer.server.port": "61616",
         "traefik.tcp.routers.{{appname}}.entrypoints": "https",
         "traefik.tcp.routers.{{appname}}.tls": "true",
-        "traefik.tcp.routers.{{appname}}.rule": "HostSNI(`{{appname}}.{{ansible_hostname}}.lan`)",
+        "traefik.tcp.routers.{{appname}}.rule": "HostSNI(`{{appname}}.{{inventory_hostname}}`)",
         "traefik.tcp.routers.{{appname}}.service": "{{appname}}",
         "traefik.http.services.{{appname}}-console.loadbalancer.server.port": "8161",
         "traefik.http.routers.{{appname}}-console.entrypoints": "http",
         "traefik.http.routers.{{appname}}-console.tls": "false",
-        "traefik.http.routers.{{appname}}-console.rule": "Host(`{{appname}}-console.{{ansible_hostname}}.lan`)",
+        "traefik.http.routers.{{appname}}-console.rule": "Host(`{{appname}}-console.{{inventory_hostname}}`)",
         "traefik.http.routers.{{appname}}-console.service": "{{appname}}-console"
       }
     volumes:

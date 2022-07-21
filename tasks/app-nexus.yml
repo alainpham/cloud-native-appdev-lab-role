@@ -2,7 +2,15 @@
 - set_fact:
     appname: nexus
 
+- name: purge {{appname}} folders
+  when: purge
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}
+    state: absent
+
 - name: Create {{appname}} folders
+  when: appstate == 'started'
   become: true
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/data
@@ -42,7 +50,7 @@
 - name: Check if server is up
   when: appstate == 'started'
   uri:
-    url: "https://{{appname}}.{{ansible_hostname}}.lan/service/rest/v1/status"
+    url: "https://{{appname}}.{{inventory_hostname}}/service/rest/v1/status"
     method: GET
     status_code: 200
   register: result
@@ -82,7 +90,7 @@
 - name: Reset password
   when: appstate == 'started' and passfile.stat.exists
   uri:
-    url: "https://{{appname}}.{{ansible_hostname}}.lan/service/rest/v1/security/users/admin/change-password"
+    url: "https://{{appname}}.{{inventory_hostname}}/service/rest/v1/security/users/admin/change-password"
     user: "admin"
     password: "{{nexus_password}}"
     method: PUT
@@ -105,13 +113,13 @@
 - name: Delete Proxy repos if they exist
   when: appstate == 'started'
   uri:
-    url: "https://{{appname}}.{{ansible_hostname}}.lan/service/rest/v1/repositories/{{ item }}"
+    url: "https://{{appname}}.{{inventory_hostname}}/service/rest/v1/repositories/{{ item }}"
     user: "admin"
     password: "{{nexus_password}}"
     method: DELETE
     force_basic_auth: yes
     status_code: [204, 404]
-  with_items: 
+  loop: 
     - red-hat-ga-repository
     - red-hat-early-access-repository
   retries: 10
@@ -120,7 +128,7 @@
 - name: Proxy repos
   when: appstate == 'started'
   uri:
-    url: "https://{{appname}}.{{ansible_hostname}}.lan/service/rest/v1/repositories/maven/proxy"
+    url: "https://{{appname}}.{{inventory_hostname}}/service/rest/v1/repositories/maven/proxy"
     user: "admin"
     password: "{{nexus_password}}"
     method: POST
@@ -154,14 +162,14 @@
           "contentDisposition": "INLINE"
         }
       }
-  with_items: 
+  loop: 
     - {name: red-hat-ga-repository, url: https://maven.repository.redhat.com/ga}
     - {name: red-hat-early-access-repository, url: https://maven.repository.redhat.com/earlyaccess/all}
 
 - name: Update maven public group
   when: appstate == 'started'
   uri:
-    url: "https://{{appname}}.{{ansible_hostname}}.lan/service/rest/v1/repositories/maven/group/maven-public"
+    url: "https://{{appname}}.{{inventory_hostname}}/service/rest/v1/repositories/maven/group/maven-public"
     user: "admin"
     password: "{{nexus_password}}"
     method: PUT
@@ -190,7 +198,7 @@
 - name: Update maven public group
   when: appstate == 'started'
   uri:
-    url: "https://{{appname}}.{{ansible_hostname}}.lan/service/rest/v1/security/anonymous"
+    url: "https://{{appname}}.{{inventory_hostname}}/service/rest/v1/security/anonymous"
     user: "admin"
     password: "{{nexus_password}}"
     method: PUT

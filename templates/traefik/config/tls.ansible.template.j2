@@ -3,5 +3,5 @@ tls:
   stores:
     default:
       defaultCertificate:
-          keyFile: "/certs/{{[ ansible_hostname ]}}.key"
-          certFile: "/certs/{{[ ansible_hostname ]}}.pem"
+          keyFile: "/certs/{{[ inventory_hostname ]}}.key"
+          certFile: "/certs/{{[ inventory_hostname ]}}.pem"

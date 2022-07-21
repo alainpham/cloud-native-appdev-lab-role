@@ -2,7 +2,15 @@
 - set_fact:
     appname: grafana-agent
 
+- name: purge {{appname}} folders
+  when: purge
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}
+    state: absent
+
 - name: Create {{appname}} folders
+  when: appstate == 'started'
   become: true
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/config/
@@ -12,12 +20,14 @@
     mode: '0755'
 
 - name: Template {{appname}} config
+  when: appstate == 'started'
   ansible.builtin.template:
     src: templates/{{appname}}/config/agent.template.j2
     dest: /home/{{ ansible_user }}/apps/{{appname}}/config/agent.yml
     mode: '0644'
 
 - name: Create {{appname}} folders
+  when: appstate == 'started'
   become: true
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/data
@@ -48,7 +58,7 @@
     volumes:
       - /home/{{ ansible_user }}/apps/{{appname}}/config/agent.yml:/etc/agent/agent.yaml:ro
       - /home/{{ ansible_user }}/apps/{{appname}}/data:/etc/agent/data:rw
-      - /home/{{ansible_user}}/apps/tls/{{ansible_hostname}}-root-ca.pem:/tls/root-ca.pem:ro
+      - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/tls/root-ca.pem:ro
     networks_cli_compatible: yes
     network_mode: primenet
     networks:

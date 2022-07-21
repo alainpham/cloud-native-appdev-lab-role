@@ -2,7 +2,15 @@
 - set_fact:
     appname: keycloak
 
+- name: purge {{appname}} folders
+  when: purge
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}
+    state: absent
+
 - name: Create {{appname}} folders
+  when: appstate == 'started'
   become: true
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/config/
@@ -12,12 +20,14 @@
     mode: '0755'
 
 - name: Copy config {{appname}} config
+  when: appstate == 'started'
   copy:
     src: "templates/{{appname}}/config/"
     dest: /home/{{ ansible_user }}/apps/{{appname}}/config/
     mode: '0644'
 
 - name: Create {{appname}} folders
+  when: appstate == 'started'
   become: true
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/data
@@ -39,15 +49,15 @@
     command: start
     env:
       KC_HTTP_ENABLED: "true"
-      KC_HOSTNAME: "{{appname}}.{{ansible_hostname}}.lan"
-      # KC_HOSTNAME_ADMIN: "{{appname}}.{{ansible_hostname}}.lan"
+      KC_HOSTNAME: "{{appname}}.{{inventory_hostname}}"
+      # KC_HOSTNAME_ADMIN: "{{appname}}.{{inventory_hostname}}"
       KC_PROXY: edge
       # KC_HOSTNAME_PORT:  "443"
       # KC_HOSTNAME_STRICT: "true"
       # KC_HOSTNAME: "172.18.0.80"
       # KC_HOSTNAME_PORT:  "8443"
-      # KC_HTTPS_CERTIFICATE_FILE: /certs/{{ansible_hostname}}.pem
-      # KC_HTTPS_CERTIFICATE_KEY_FILE: /certs/{{ansible_hostname}}.key
+      # KC_HTTPS_CERTIFICATE_FILE: /certs/{{inventory_hostname}}.pem
+      # KC_HTTPS_CERTIFICATE_KEY_FILE: /certs/{{inventory_hostname}}.key
       # KC_HEALTH_ENABLED: "true"
       # KC_METRICS_ENABLED: "true"
       KEYCLOAK_ADMIN: admin
@@ -59,7 +69,7 @@
     #     "traefik.tcp.routers.{{appname}}.entrypoints": "https",
     #     "traefik.tcp.routers.{{appname}}.tls": "true",
     #     "traefik.tcp.routers.{{appname}}.tls.passthrough": "true",
-    #     "traefik.tcp.routers.{{appname}}.rule": "HostSNI(`{{appname}}.{{ansible_hostname}}.lan`)",
+    #     "traefik.tcp.routers.{{appname}}.rule": "HostSNI(`{{appname}}.{{inventory_hostname}}`)",
     #     "traefik.tcp.routers.{{appname}}.service": "{{appname}}",
     #   }
     labels: |
@@ -88,10 +98,10 @@
 
 # setup realm
 
-- name: Check if server is up
+- name: Check if server is up {{inventory_hostname}}
   when: appstate == 'started'
   uri:
-    url: "https://{{appname}}.{{ansible_hostname}}.lan/q/health"
+    url: "https://{{appname}}.{{inventory_hostname}}/q/health"
     method: GET
     status_code: 200
   register: result
@@ -100,8 +110,9 @@
   delay: 2
 
 - name: login
+  when: appstate == 'started'
   ansible.builtin.uri:
-    url: https://{{appname}}.{{ansible_hostname}}.lan/realms/master/protocol/openid-connect/token
+    url: https://{{appname}}.{{inventory_hostname}}/realms/master/protocol/openid-connect/token
     method: POST
     body_format: form-urlencoded
     body:
@@ -112,6 +123,7 @@
   register: login
 
 - name: delete realm
+  when: appstate == 'started'
   ansible.builtin.uri:
     url: https://keycloak.work.lan/admin/realms/apps
     method: DELETE
@@ -121,6 +133,7 @@
   ignore_errors: true
 
 - name: create realm
+  when: appstate == 'started'
   ansible.builtin.uri:
     url: https://keycloak.work.lan/admin/realms/
     method: POST

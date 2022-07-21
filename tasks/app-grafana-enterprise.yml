@@ -2,7 +2,15 @@
 - set_fact:
     appname: grafana-enterprise
 
+- name: purge {{appname}} folders
+  when: purge
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}
+    state: absent
+
 - name: Create {{appname}} folders
+  when: appstate == 'started'
   become: true
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/config/
@@ -12,6 +20,7 @@
     mode: '0755'
 
 - name: Copy config {{appname}} config
+  when: appstate == 'started'
   copy:
     src: "templates/grafana/config/"
     dest: /home/{{ ansible_user }}/apps/{{appname}}/config/
@@ -32,6 +41,9 @@
       GF_SERVER_DOMAIN: "grafana-enterprise.work.lan"
       GF_SERVER_ROOT_URL: https://grafana-enterprise.work.lan/
       GF_ENTERPRISE_LICENSE_TEXT: "{{ secretappconfig[appname].license }}"
+      GF_AUTH_BASIC_ENABLED: "true"
+      GF_AUTH_DISABLE_LOGIN_FORM: "false"
+      GF_AUTH_OAUTH_AUTO_LOGIN: "false"
       GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
       GF_AUTH_GENERIC_OAUTH_NAME: "Keycloak OIDC / OAuth 2.0"
       GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP: "true"
@@ -48,6 +60,9 @@
       GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_STRICT: "true"
       GF_AUTH_GENERIC_OAUTH_GROUPS_ATTRIBUTE_PATH: "groups[*]"
       GF_USERS_EDITORS_CAN_ADMIN: "true"
+      GF_WHITE_LABELING_LOGIN_BACKGROUND: "url(public/branding/background.jpg)"
+      GF_WHITE_LABELING_LOGIN_LOGO: "public/branding/logo.svg"
+      GF_WHITE_LABELING_MENU_LOGO: "public/branding/logo.svg"
     ports:
     labels: |
       {
@@ -57,7 +72,9 @@
     volumes:
       - /home/{{ansible_user}}/apps/grafana-enterprise/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/grafana-datasources.yml:ro
       - /home/{{ansible_user}}/apps/grafana-enterprise/config/dashboards:/etc/grafana/provisioning/dashboards:ro
-      - /home/{{ansible_user}}/apps/tls/{{ansible_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
+      - /home/{{ansible_user}}/apps/grafana-enterprise/config/rbac/rbac.yml:/etc/grafana/provisioning/access-control/rbac.yml:ro
+      - /home/{{ansible_user}}/apps/grafana-enterprise/config/branding:/usr/share/grafana/public/branding:ro
+      - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
     networks_cli_compatible: yes
     network_mode: primenet
     networks:
@@ -67,7 +84,7 @@
 - name: Check if server is up
   when: appstate == 'started'
   uri:
-    url: "https://{{appname}}.{{ansible_hostname}}.lan/api/health"
+    url: "https://{{appname}}.{{inventory_hostname}}/api/health"
     method: GET
     status_code: 200
   register: result
@@ -79,7 +96,7 @@
   when: appstate == 'started'
   ignore_errors: true
   uri:
-    url: "https://{{appname}}.{{ansible_hostname}}.lan/api/user/password"
+    url: "https://{{appname}}.{{inventory_hostname}}/api/user/password"
     user: "admin"
     password: "admin"
     method: PUT
@@ -98,7 +115,7 @@
   when: appstate == 'started'
   ignore_errors: true
   uri:
-    url: "https://{{appname}}.{{ansible_hostname}}.lan/api/teams"
+    url: "https://{{appname}}.{{inventory_hostname}}/api/teams"
     user: "admin"
     password: "password"
     method: POST
@@ -121,7 +138,7 @@
   when: appstate == 'started'
   ignore_errors: true
   uri:
-    url: "https://{{appname}}.{{ansible_hostname}}.lan/api/teams/{{ item.id }}/groups"
+    url: "https://{{appname}}.{{inventory_hostname}}/api/teams/{{ item.id }}/groups"
     user: "admin"
     password: "password"
     method: POST
@@ -137,3 +154,43 @@
       name: egypt
     - id: 2
       name: greece
+
+- name: Create teamadmin team
+  when: appstate == 'started'
+  ignore_errors: true
+  uri:
+    url: "https://{{appname}}.{{inventory_hostname}}/api/teams"
+    user: "admin"
+    password: "password"
+    method: POST
+    body_format: json
+    body: | 
+      {
+        "name": "{{ item.name }}",
+        "email": "{{ item.name }}@lab",
+        "orgId": 1
+      }
+    force_basic_auth: yes
+    status_code: 200
+  loop:
+    - id: 3
+      name: teamadmin
+
+- name: Create team
+  when: appstate == 'started'
+  ignore_errors: true
+  uri:
+    url: "https://{{appname}}.{{inventory_hostname}}/api/access-control/teams/{{ item.id }}/roles"
+    user: "admin"
+    password: "password"
+    method: POST
+    body_format: json
+    body: | 
+      {
+          "roleUid": "teamadmin"
+      }
+    force_basic_auth: yes
+    status_code: 200
+  loop:
+    - id: 3
+      name: teamadmin

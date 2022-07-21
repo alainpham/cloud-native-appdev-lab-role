@@ -4,4 +4,4 @@ authorityKeyIdentifier = keyid:always, issuer:always
 keyUsage               = nonRepudiation, digitalSignature, keyEncipherment, dataEncipherment
 subjectAltName         = @alt_names
 [ alt_names ]
-DNS.1 = *.{{ansible_hostname}}.lan
+DNS.1 = *.{{inventory_hostname}}

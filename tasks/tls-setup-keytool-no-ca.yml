@@ -1,18 +1,18 @@
 ---
 - stat:
-    path: "/home/{{ ansible_user }}/apps/tls/{{ansible_hostname}}.p12"
+    path: "/home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.p12"
   register: keystore
 
 - stat:
-    path: "/home/{{ ansible_user }}/apps/tls/{{ansible_hostname}}-truststore.p12"
+    path: "/home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}-truststore.p12"
   register: truststore
 
 - stat:
-    path: "/home/{{ ansible_user }}/apps/tls/{{ansible_hostname}}.key"
+    path: "/home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.key"
   register: privkey
 
 - stat:
-    path: "/home/{{ ansible_user }}/apps/tls/{{ansible_hostname}}.pem"
+    path: "/home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.pem"
   register: pubkey
 
 - name: Create tls folder
@@ -25,47 +25,47 @@
   when: not keystore.stat.exists
   shell: |
     keytool -genkey \
-    -alias {{ansible_hostname}}  \
+    -alias {{inventory_hostname}}  \
     -storepass password \
     -keyalg RSA \
     -keysize 4096 \
     -storetype PKCS12 \
-    -dname "cn=*.{{ansible_hostname}}.lan" \
-    -ext "SAN=dns:{{ansible_hostname}}.lan,dns:*.{{ansible_hostname}}.lan" \
+    -dname "cn=*.{{inventory_hostname}}" \
+    -ext "SAN=dns:{{inventory_hostname}},dns:*.{{inventory_hostname}}" \
     -validity 365000 \
-    -keystore /home/{{ ansible_user }}/apps/tls/{{ansible_hostname}}.p12
+    -keystore /home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.p12
 
 - name: Extract priv key
   when: not privkey.stat.exists
   shell: |
     openssl pkcs12 \
-    -in /home/{{ ansible_user }}/apps/tls/{{ansible_hostname}}.p12 \
+    -in /home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.p12 \
     -nodes \
     -password pass:password -nocerts \
-    -out /home/{{ ansible_user }}/apps/tls/{{ansible_hostname}}.key
+    -out /home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.key
 
 - name: Change permissions on privkey
   file:
-    path: /home/{{ ansible_user }}/apps/tls/{{ansible_hostname}}.key
+    path: /home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.key
     mode: '0644'
 
 - name: Extract pub key
   when: not pubkey.stat.exists
   shell: |
     keytool -export \
-    -alias {{ansible_hostname}} \
+    -alias {{inventory_hostname}} \
     -rfc \
     -storepass password \
-    -keystore /home/{{ ansible_user }}/apps/tls/{{ansible_hostname}}.p12 \
-    -file /home/{{ ansible_user }}/apps/tls/{{ansible_hostname}}.pem
+    -keystore /home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.p12 \
+    -file /home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.pem
 
 - name: Create truststore
   when: not truststore.stat.exists
   shell: |
     keytool -import \
-    -alias {{ansible_hostname}} \
+    -alias {{inventory_hostname}} \
     -storepass password \
     -storetype PKCS12 \
     -noprompt \
-    -keystore /home/{{ ansible_user }}/apps/tls/{{ansible_hostname}}-truststore.p12 \
-    -file /home/{{ ansible_user }}/apps/tls/{{ansible_hostname}}.pem
+    -keystore /home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}-truststore.p12 \
+    -file /home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.pem

@@ -1,0 +1,28 @@
+---
+- name: Base server packages
+  become: true
+  apt:
+    name: 
+      - ncdu
+      - git
+      - ansible
+      - docker.io
+      - docker-compose
+      - apparmor
+      - network-manager-openvpn
+      - haproxy
+      - tmux
+      - vim
+      - openjdk-17-jdk
+      - prometheus-node-exporter
+      - htop
+      - curl
+      - lshw
+      - rsync
+      - mediainfo
+      - ffmpeg
+      - python3-mutagen
+      - iperf
+      - dnsmasq
+      - imagemagick
+    state: present

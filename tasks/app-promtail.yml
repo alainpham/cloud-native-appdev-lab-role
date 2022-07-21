@@ -2,7 +2,15 @@
 - set_fact:
     appname: promtail
 
+- name: purge {{appname}} folders
+  when: purge
+  become: true
+  file:
+    path: /home/{{ ansible_user }}/apps/{{appname}}
+    state: absent
+
 - name: Create {{appname}} folders
+  when: appstate == 'started'
   become: true
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/config/
@@ -12,12 +20,14 @@
     mode: '0755'
 
 - name: Template {{appname}} config
+  when: appstate == 'started'
   ansible.builtin.template:
     src: templates/{{appname}}/config/config.template.j2
     dest: /home/{{ ansible_user }}/apps/{{appname}}/config/config.yml
     mode: '0644'
 
 - name: Create {{appname}} folders
+  when: appstate == 'started'
   become: true
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/data
