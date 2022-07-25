@@ -268,7 +268,7 @@
       "security-admin-console" : [ ],
       "admin-cli" : [ ],
       "account-console" : [ ],
-      "grafana-alpha.work.lan" : [ ],
+      "grafana-alpha.{{ inventory_hostname }}" : [ ],
       "broker" : [ {
         "id" : "3bed2c00-f451-4a66-b678-fb138c9c8c32",
         "name" : "read-token",
@@ -278,7 +278,7 @@
         "containerId" : "e2523fc2-8cc7-47b6-b6c6-e9bf64d8d86f",
         "attributes" : { }
       } ],
-      "grafana.work.lan" : [ ],
+      "grafana.{{ inventory_hostname }}" : [ ],
       "account" : [ {
         "id" : "275b3fa6-e3fd-4377-8f33-67b27966072b",
         "name" : "manage-account",
@@ -346,7 +346,7 @@
         "containerId" : "2795c124-359a-4354-a105-b5c4d1f187b2",
         "attributes" : { }
       } ],
-      "grafana-enterprise.work.lan" : [ ]
+      "grafana-enterprise.{{ inventory_hostname }}" : [ ]
     }
   },
   "groups" : [ {
@@ -602,13 +602,13 @@
     "groups" : [ "/greece" ]
   } ],
   "scopeMappings" : [ {
-    "client" : "grafana-alpha.work.lan",
+    "client" : "grafana-alpha.{{ inventory_hostname }}",
     "roles" : [ "o11y-admin", "o11y-editor", "o11y-viewer" ]
   }, {
-    "client" : "grafana-enterprise.work.lan",
+    "client" : "grafana-enterprise.{{ inventory_hostname }}",
     "roles" : [ "o11y-admin", "o11y-editor", "o11y-viewer" ]
   }, {
-    "client" : "grafana.work.lan",
+    "client" : "grafana.{{ inventory_hostname }}",
     "roles" : [ "o11y-admin", "o11y-editor", "o11y-viewer" ]
   }, {
     "clientScope" : "offline_access",
@@ -740,15 +740,15 @@
     "optionalClientScopes" : [ "address", "phone", "offline_access", "microprofile-jwt" ]
   }, {
     "id" : "3c2a9fa3-db7a-4a09-97bf-970d59cde685",
-    "clientId" : "grafana-alpha.work.lan",
-    "rootUrl" : "https://grafana-alpha.work.lan",
+    "clientId" : "grafana-alpha.{{ inventory_hostname }}",
+    "rootUrl" : "https://grafana-alpha.{{ inventory_hostname }}",
     "adminUrl" : "",
     "surrogateAuthRequired" : false,
     "enabled" : true,
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
     "secret" : "MjqkTs9Hr0I96NcJ17K2idIepC26SWT0",
-    "redirectUris" : [ "https://grafana-alpha.work.lan/*" ],
+    "redirectUris" : [ "https://grafana-alpha.{{ inventory_hostname }}/*" ],
     "webOrigins" : [ "" ],
     "notBefore" : 0,
     "bearerOnly" : false,
@@ -824,15 +824,15 @@
     "optionalClientScopes" : [ "address", "phone", "offline_access", "microprofile-jwt" ]
   }, {
     "id" : "ca158b2b-39c1-42fc-bfb0-7163cb75fe71",
-    "clientId" : "grafana-enterprise.work.lan",
-    "rootUrl" : "https://grafana-enterprise.work.lan",
+    "clientId" : "grafana-enterprise.{{ inventory_hostname }}",
+    "rootUrl" : "https://grafana-enterprise.{{ inventory_hostname }}",
     "adminUrl" : "",
     "surrogateAuthRequired" : false,
     "enabled" : true,
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
     "secret" : "e2dt6BF1roELLGmksmArt9aIgm7jB6lB",
-    "redirectUris" : [ "https://grafana-enterprise.work.lan/*" ],
+    "redirectUris" : [ "https://grafana-enterprise.{{ inventory_hostname }}/*" ],
     "webOrigins" : [ "" ],
     "notBefore" : 0,
     "bearerOnly" : false,
@@ -908,15 +908,15 @@
     "optionalClientScopes" : [ "address", "phone", "offline_access", "microprofile-jwt" ]
   }, {
     "id" : "8924c787-7a4f-40fa-b6a8-d8358790f888",
-    "clientId" : "grafana.work.lan",
-    "rootUrl" : "https://grafana.work.lan",
+    "clientId" : "grafana.{{ inventory_hostname }}",
+    "rootUrl" : "https://grafana.{{ inventory_hostname }}",
     "adminUrl" : "",
     "surrogateAuthRequired" : false,
     "enabled" : true,
     "alwaysDisplayInConsole" : false,
     "clientAuthenticatorType" : "client-secret",
     "secret" : "SiHDbYD4EQinAcFoRT3t0XfcUL0AXvlB",
-    "redirectUris" : [ "https://grafana.work.lan/*" ],
+    "redirectUris" : [ "https://grafana.{{ inventory_hostname }}/*" ],
     "webOrigins" : [ "" ],
     "notBefore" : 0,
     "bearerOnly" : false,

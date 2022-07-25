@@ -1,0 +1,18 @@
+---
+- name: Base server packages
+  become: true
+  apt:
+    name: 
+      - git
+      - ansible
+      - docker.io
+      - docker-compose
+      - apparmor
+      - tmux
+      - vim
+      - openjdk-17-jdk
+      - prometheus-node-exporter
+      - curl
+      - rsync
+      - dnsmasq
+    state: present

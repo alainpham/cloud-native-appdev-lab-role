@@ -2,19 +2,10 @@
 
 appconfig:
 
-  # functional apps
-  rentman: 
+  # functional apps from 20 to 30 ip range
+  myapp: 
     ip: 172.18.0.20 
     image: 
-  bqueue: 
-    ip: 172.18.0.21
-    image: 
-  plex:
-    ip: 172.18.0.22
-    image:
-  teddycast: 
-    ip: 172.18.0.23
-    image:
   
   # platform essentials
   portainer: 
@@ -32,8 +23,6 @@ appconfig:
   traefik: 
     ip: 172.18.0.43
     image: traefik:v2.8
-  fileserver: 
-    ip: 172.18.0.47
   keycloak: 
     ip: 172.18.0.48
     image: quay.io/keycloak/keycloak:18.0.2
@@ -95,6 +84,9 @@ appconfig:
   grafana-agent:
     ip: 172.18.0.75
     image: grafana/agent:v0.26.0
+  grafana-alpha: 
+    ip: 172.18.0.76
+    image: grafana/grafana-oss-dev:9.1.0-72380pre
 
 # states can absent present stopped started
 appstate: started

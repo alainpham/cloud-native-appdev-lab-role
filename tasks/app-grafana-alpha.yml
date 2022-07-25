@@ -1,6 +1,6 @@
 ---
 - set_fact:
-    appname: grafana
+    appname: grafana-alpha
 
 - name: purge {{appname}} folders
   when: purge
@@ -22,7 +22,7 @@
 - name: Copy config {{appname}} config
   when: appstate == 'started'
   copy:
-    src: "templates/{{appname}}/config/"
+    src: "templates/grafana/config/"
     dest: /home/{{ ansible_user }}/apps/{{appname}}/config/
     mode: '0644'
 
@@ -40,12 +40,13 @@
     env:
       GF_SERVER_DOMAIN: "{{ appname }}.{{ inventory_hostname }}"
       GF_SERVER_ROOT_URL: "https://{{ appname }}.{{ inventory_hostname }}/"
+      GF_PLUGINS_ENABLE_ALPHA: "true"
       GF_AUTH_BASIC_ENABLED: "true"
       GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
       GF_AUTH_GENERIC_OAUTH_NAME: "Keycloak OIDC / OAuth 2.0"
       GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP: "true"
       GF_AUTH_GENERIC_OAUTH_CLIENT_ID: "{{ appname }}.{{ inventory_hostname }}"
-      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "SiHDbYD4EQinAcFoRT3t0XfcUL0AXvlB"
+      GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: "MjqkTs9Hr0I96NcJ17K2idIepC26SWT0"
       GF_AUTH_GENERIC_OAUTH_SCOPES: profile
       GF_AUTH_GENERIC_OAUTH_AUTH_URL: "https://keycloak.{{ inventory_hostname }}/realms/apps/protocol/openid-connect/auth"
       GF_AUTH_GENERIC_OAUTH_TOKEN_URL: "https://keycloak.{{ inventory_hostname }}/realms/apps/protocol/openid-connect/token"
@@ -63,8 +64,8 @@
         "traefik.http.routers.{{appname}}.tls": "true"
       }
     volumes:
-      - /home/{{ansible_user}}/apps/grafana/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/grafana-datasources.yml:ro
-      - /home/{{ansible_user}}/apps/grafana/config/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/grafana-datasources.yml:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/dashboards:/etc/grafana/provisioning/dashboards:ro
       - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
     networks_cli_compatible: yes
     network_mode: primenet

@@ -19,11 +19,11 @@
     group: "{{ ansible_user }}"
     mode: '0755'
 
-- name: Copy config {{appname}} config
+- name: Template {{appname}} config
   when: appstate == 'started'
-  copy:
-    src: "templates/{{appname}}/config/"
-    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/
+  ansible.builtin.template:
+    src: templates/{{appname}}/config/apps-realm-template.j2
+    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/apps-realm.json
     mode: '0644'
 
 - name: Create {{appname}} folders
@@ -125,7 +125,7 @@
 - name: delete realm
   when: appstate == 'started'
   ansible.builtin.uri:
-    url: https://keycloak.work.lan/admin/realms/apps
+    url: https://{{appname}}.{{inventory_hostname}}/admin/realms/apps
     method: DELETE
     headers: 
       Authorization: "Bearer {{ login.json.access_token }}"
@@ -135,7 +135,7 @@
 - name: create realm
   when: appstate == 'started'
   ansible.builtin.uri:
-    url: https://keycloak.work.lan/admin/realms/
+    url: https://{{appname}}.{{inventory_hostname}}/admin/realms/
     method: POST
     headers: 
       Authorization: "Bearer {{ login.json.access_token }}"
