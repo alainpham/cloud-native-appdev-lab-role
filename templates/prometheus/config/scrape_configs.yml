@@ -9,7 +9,7 @@ scrape_configs:
         replacement: $1
     static_configs:
       - targets:
-          - "work.lan:9100"
+          - "{{ inventory_hostname }}:9100"
 
   - job_name: "traefik"
     relabel_configs:
@@ -20,7 +20,7 @@ scrape_configs:
         replacement: $1
     static_configs:
       - targets:
-          - "work.lan:8080"
+          - "{{ inventory_hostname }}:8080"
 
   - job_name: "o11y"
     relabel_configs:
@@ -46,12 +46,12 @@ scrape_configs:
       ca_file: /tls/root-ca.pem
     static_configs:
       - targets:
-          - "loki.work.lan"
-          - "promtail.work.lan"
-          - "prometheus.work.lan"
-          - "grafana-agent.work.lan"
-          - "grafana.work.lan"
-          - "grafana-enterprise.work.lan"
+          - "loki.{{ inventory_hostname }}"
+          - "promtail.{{ inventory_hostname }}"
+          - "prometheus.{{ inventory_hostname }}"
+          - "grafana-agent.{{ inventory_hostname }}"
+          - "grafana.{{ inventory_hostname }}"
+          - "grafana-enterprise.{{ inventory_hostname }}"
 
   - job_name: "activemq-artemis"
     relabel_configs:
@@ -78,7 +78,7 @@ scrape_configs:
         replacement: activemq-artemis
     static_configs:
       - targets:
-          - "artemis-console.work.lan"
+          - "artemis-console.{{ inventory_hostname }}"
 
   - job_name: "camelquarkus"
     metrics_path: /q/metrics
@@ -102,7 +102,7 @@ scrape_configs:
         replacement: camel
     static_configs:
       - targets:
-          - "bqueue.work.lan"
+          - "bqueue.{{ inventory_hostname }}"
 
   - job_name: "kafka"
     relabel_configs:
@@ -124,8 +124,8 @@ scrape_configs:
         replacement: kafka
     static_configs:
       - targets:
-          - "kafka-metrics.work.lan"
-          - "kafkaexporter.work.lan"
+          - "kafka-metrics.{{ inventory_hostname }}"
+          - "kafkaexporter.{{ inventory_hostname }}"
 
   - job_name: "zookeeper"
     relabel_configs:
@@ -147,4 +147,4 @@ scrape_configs:
         replacement: kafka
     static_configs:
       - targets:
-          - "zookeeper-metrics.work.lan"
+          - "zookeeper-metrics.{{ inventory_hostname }}"
