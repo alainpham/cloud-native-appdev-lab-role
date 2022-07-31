@@ -11,6 +11,7 @@ docker:
     - 8.8.8.8
 
 dnsmasq:
+  listen: 0.0.0.0
   address:
     - hostname: bbee.lan
       ip: 192.168.8.153
