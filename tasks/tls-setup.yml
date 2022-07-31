@@ -112,7 +112,7 @@
     -CAcreateserial \
     -days 365000 -sha256  \
     -extfile /home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.cnf \
-    -out /home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.pem \
+    -out /home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.pem
 
 - name: Create truststore
   when: not truststore.stat.exists
