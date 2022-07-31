@@ -1,0 +1,23 @@
+---
+- name: listen-address
+  become: true
+  lineinfile:
+    dest: /etc/dnsmasq.conf
+    regexp: '.*listen-address.*'
+    line: "listen-address {{ dnsmasq.listen }}"
+
+- name: dns-records
+  become: true
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '.*{{ item.hostname }}.*'
+    line: "address=/{{ item.hostname }}/{{ item.ip }}"
+  loop: "{{dnsmasq.address}}"
+    
+# by default we do not start dnsmasq service
+- name: disable dnsmasq service
+  become: true
+  ansible.builtin.systemd:
+    enabled: true
+    state: started
+    name: dnsmasq

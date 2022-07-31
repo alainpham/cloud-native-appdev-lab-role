@@ -9,6 +9,19 @@ docker:
     - 172.18.0.1
     - 192.168.8.200
     - 8.8.8.8
+
+dnsmasq:
+  listen: 0.0.0.0
+  address:
+    - hostname: bbee.lan
+      ip: 192.168.8.153
+    - hostname: work.lan
+      ip: 192.168.8.154
+    - hostname: asus.lan
+      ip: 192.168.8.108
+    - hostname: cipi.lan
+      ip: 192.168.8.200
+
 appconfig:
   # functional apps from 20 to 30 ip range
   myapp: 
