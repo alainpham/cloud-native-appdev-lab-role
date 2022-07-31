@@ -9,7 +9,7 @@
 - name: dns-records
   become: true
   lineinfile:
-    dest: /etc/hosts
+    dest: /etc/dnsmasq.conf
     regexp: '.*{{ item.hostname }}.*'
     line: "address=/{{ item.hostname }}/{{ item.ip }}"
   loop: "{{dnsmasq.address}}"
