@@ -8,7 +8,7 @@
   become: true
   shell: |
     docker network inspect primenet --format {{ '{{' }}.Id{{ '}}' }}
-  ignore_errors: yes
+  ignore_errors: true
   register: networkinspect
   changed_when: false
 
