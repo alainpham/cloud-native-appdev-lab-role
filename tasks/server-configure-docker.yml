@@ -1,0 +1,40 @@
+- name: Configure docker registry /etc/docker/daemon.json
+  become: true
+  ansible.builtin.template:
+    src: templates/docker/daemon.json
+    dest: /etc/docker/daemon.json
+
+- name: Check primenet exists
+  become: true
+  shell: |
+    docker network inspect primenet --format {{ '{{' }}.Id{{ '}}' }}
+  ignore_errors: yes
+  register: networkinspect
+  changed_when: false
+
+
+- name: debug msg
+  debug:
+    msg: "primenet exists ? : {{ networkinspect.rc == 0 }}"
+
+- name: Create primenetwork
+  become: true
+  shell: |
+    docker network create --driver=bridge --subnet=172.18.0.0/16 --gateway=172.18.0.1 primenet
+  when: networkinspect.rc != 0
+
+- name: Restart Docker
+  become: true
+  when: networkinspect.rc != 0
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: docker
+
+# by default we do not start dnsmasq service
+- name: disable dnsmasq service
+  become: true
+  ansible.builtin.systemd:
+    enabled: false
+    state: stopped
+    name: dnsmasq

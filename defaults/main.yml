@@ -1,7 +1,15 @@
 ---
-
+docker:
+  registries:
+    - registry.cipi.lan
+    - registry.work.lan
+    - registry.hpel.lan
+  dns: 
+    - 172.17.0.1
+    - 172.18.0.1
+    - 192.168.8.200
+    - 8.8.8.8
 appconfig:
-
   # functional apps from 20 to 30 ip range
   myapp: 
     ip: 172.18.0.20 
