@@ -31,7 +31,7 @@
     daemon_reload: yes
     name: docker
 
-- name: adding existing user 'apham' to group docker
+- name: adding existing user '{{ ansible_user }}' to group docker
   user:
     name: '{{ ansible_user }}'
     groups: docker
