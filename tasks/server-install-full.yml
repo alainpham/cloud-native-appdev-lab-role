@@ -25,6 +25,7 @@
       - iperf
       - dnsmasq
       - imagemagick
+      - npm
     state: present
 
 # by default we do not start dnsmasq service

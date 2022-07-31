@@ -1,10 +1,10 @@
 ---
-- name: listen-address
-  become: true
-  lineinfile:
-    dest: /etc/dnsmasq.conf
-    regexp: '.*listen-address.*'
-    line: "listen-address={{ dnsmasq.listen }}"
+# - name: listen-address
+#   become: true
+#   lineinfile:
+#     dest: /etc/dnsmasq.conf
+#     regexp: '.*listen-address.*'
+#     line: "listen-address={{ dnsmasq.listen }}"
 
 - name: dns-records
   become: true
@@ -19,5 +19,5 @@
   become: true
   ansible.builtin.systemd:
     enabled: true
-    state: started
+    state: restarted
     name: dnsmasq
