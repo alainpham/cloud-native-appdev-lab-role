@@ -31,10 +31,8 @@
     daemon_reload: yes
     name: docker
 
-# by default we do not start dnsmasq service
-- name: disable dnsmasq service
-  become: true
-  ansible.builtin.systemd:
-    enabled: false
-    state: stopped
-    name: dnsmasq
+- name: adding existing user 'apham' to group docker
+  user:
+    name: '{{ ansible_user }}'
+    groups: docker
+    append: yes

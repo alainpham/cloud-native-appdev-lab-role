@@ -26,3 +26,11 @@
       - dnsmasq
       - imagemagick
     state: present
+
+# by default we do not start dnsmasq service
+- name: disable dnsmasq service
+  become: true
+  ansible.builtin.systemd:
+    enabled: false
+    state: stopped
+    name: dnsmasq
