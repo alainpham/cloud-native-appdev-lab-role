@@ -15,7 +15,7 @@
   loop: "{{dnsmasq.address}}"
     
 # by default we do not start dnsmasq service
-- name: disable dnsmasq service
+- name: start dnsmasq service
   become: true
   ansible.builtin.systemd:
     enabled: true
