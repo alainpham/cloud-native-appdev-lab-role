@@ -4,7 +4,7 @@
   lineinfile:
     dest: /etc/dnsmasq.conf
     regexp: '.*listen-address.*'
-    line: "listen-address {{ dnsmasq.listen }}"
+    line: "listen-address={{ dnsmasq.listen }}"
 
 - name: dns-records
   become: true
