@@ -46,7 +46,7 @@ appconfig:
     image: traefik:v2.8
   keycloak: 
     ip: 172.18.0.48
-    image: quay.io/keycloak/keycloak:18.0.2
+    image: quay.io/keycloak/keycloak:19.0.1
   reposilite: 
     ip: 172.18.0.49
     image: dzikoysk/reposilite:2.9.26

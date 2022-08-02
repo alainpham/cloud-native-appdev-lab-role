@@ -8,3 +8,13 @@ Go to the following repo to get full example playbooks running this role :
 https://github.com/alainpham/local-lab
 
 ![cloudnativearch](https://github.com/alainpham/local-lab/raw/master/assets/architecture.png)
+
+# Manual install test
+
+## Grafana
+
+```
+
+docker run --rm -e GF_PLUGINS_ENABLE_ALPHA=true grafana/grafana-oss-dev:9.1.0-72380pre
+
+```
