@@ -1,0 +1,16 @@
+---
+- name: push images
+  debug:
+    msg: "registry.{{ inventory_hostname }}./{{ item }}:{{ appconfig[item].image.split(':').1 }}"
+  loop: "{{apps}}"
+
+
+- name: tag container images for registries
+  shell: | 
+    docker tag {{ appconfig[item].image }} registry.{{ inventory_hostname }}/{{ item }}:{{ appconfig[item].image.split(':').1 }}
+  loop: "{{apps}}"
+
+- name: push container images to registries
+  shell: | 
+    docker push registry.{{ inventory_hostname }}/{{ item }}:{{ appconfig[item].image.split(':').1 }}
+  loop: "{{apps}}"

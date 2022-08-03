@@ -58,8 +58,8 @@
       # KC_HOSTNAME_PORT:  "8443"
       # KC_HTTPS_CERTIFICATE_FILE: /certs/{{inventory_hostname}}.pem
       # KC_HTTPS_CERTIFICATE_KEY_FILE: /certs/{{inventory_hostname}}.key
-      # KC_HEALTH_ENABLED: "true"
-      # KC_METRICS_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "true"
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: password
     ports:
@@ -101,7 +101,7 @@
 - name: Check if server is up {{inventory_hostname}}
   when: appstate == 'started'
   uri:
-    url: "https://{{appname}}.{{inventory_hostname}}/q/health"
+    url: "https://{{appname}}.{{inventory_hostname}}/health"
     method: GET
     status_code: 200
   register: result
