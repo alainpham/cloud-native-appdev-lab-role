@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Take one argument from the commandline: VM name
-if ! [ $# -eq 7 ]; then
-    echo "Usage: $0 <node-name> <ram-MB> <vcpus> <source-image> <mac-ip-suffix> <disk-size> <os-variant>"
-    echo "ie: vmcreate prime 2048 4 debian 10 40G debian10"
+if ! [ $# -eq 8 ]; then
+    echo "Usage: $0 <node-name> <ram-MB> <vcpus> <source-image> <mac-ip-suffix> <disk-size> <data-size> <os-variant>"
+    echo "ie: vmcreate prime 2048 4 debian 10 40G 40G debian10"
     exit 1
 fi
 
@@ -21,6 +21,7 @@ MEM=$2
 CPUS=$3
 
 DISK=$1.qcow2
+DATA_DISK=$1-data.qcow2
 
 BRIDGE=virbr0
 
@@ -30,7 +31,8 @@ CI_ISO=$VMS_DIR/$1-cidata.iso
 MAC="52:54:00:00:00:$5"
 IP="192.168.122.$5"
 DSIZE=$6
-OS_VARIANT=$7
+DATADSIZE=$7
+OS_VARIANT=$8
 
 echo "$(date -R) creating machine named $1 with $MEM MB of RAM and $CPUS vcpu(s) ...."
 
@@ -74,29 +76,37 @@ genisoimage -output $CI_ISO  -volid cidata -joliet -rock $USER_DATA $META_DATA
 
 echo "$(date -R) Creating image from template..."
 qemu-img create -f qcow2 -b $IMAGE -F qcow2 $VMS_DIR/$DISK $DSIZE 
+qemu-img create -f qcow2 $VMS_DIR/$DATA_DISK $DATADSIZE 
+
 
 echo "$(date -R) Setting up dhcp ip server..."
 sudo virsh net-update default add ip-dhcp-host "<host mac='$MAC' name='$1' ip='$IP' />" --live --config
 
 echo "$(date -R) Installing the domain and adjusting the configuration..."
 
-echo "sudo virt-install --import --name $1 --ram $MEM --vcpus $CPUS --disk \
-    $VMS_DIR/$DISK,format=qcow2,bus=virtio --disk $CI_ISO,readonly=on --network \
-    bridge=$BRIDGE,model=virtio,mac=$MAC --os-variant=$OS_VARIANT --noautoconsole --cpu host-passthrough"
+echo "sudo virt-install --import \ 
+  --name $1 \
+  --ram $MEM \
+  --vcpus $CPUS \
+  --disk $VMS_DIR/$DISK,format=qcow2,bus=virtio \ 
+  --disk $VMS_DIR/$DATA_DISK,format=qcow2,bus=virtio \
+  --disk $CI_ISO,readonly=on \ 
+  --network bridge=$BRIDGE,model=virtio,mac=$MAC \
+  --os-variant=$OS_VARIANT \
+  --noautoconsole \
+  --cpu host-passthrough"
 
-sudo virt-install --import --name $1 --ram $MEM --vcpus $CPUS --disk \
-    $VMS_DIR/$DISK,format=qcow2,bus=virtio --disk $CI_ISO,readonly=on --network \
-    bridge=$BRIDGE,model=virtio,mac=$MAC --os-variant=$OS_VARIANT --noautoconsole --cpu host-passthrough
-
-
-
-# echo "sudo virt-install --import --name $1 --ram $MEM --vcpus $CPUS --disk \
-#     $VMS_DIR/$DISK,format=qcow2,bus=virtio --network \
-#     bridge=$BRIDGE,model=virtio,mac=$MAC --os-variant=$OS_VARIANT --noautoconsole --cpu host-passthrough"
-
-# sudo virt-install --import --name $1 --ram $MEM --vcpus $CPUS --disk \
-#     $VMS_DIR/$DISK,format=qcow2,bus=virtio --network \
-#     bridge=$BRIDGE,model=virtio,mac=$MAC --os-variant=$OS_VARIANT --noautoconsole --cpu host-passthrough
+sudo virt-install --import \ 
+  --name $1 \
+  --ram $MEM \
+  --vcpus $CPUS \
+  --disk $VMS_DIR/$DISK,format=qcow2,bus=virtio \ 
+  --disk $VMS_DIR/$DATA_DISK,format=qcow2,bus=virtio \
+  --disk $CI_ISO,readonly=on \ 
+  --network bridge=$BRIDGE,model=virtio,mac=$MAC \
+  --os-variant=$OS_VARIANT \
+  --noautoconsole \
+  --cpu host-passthrough
 
 counter=0
 MAC=$(sudo virsh dumpxml $1 | awk -F\' '/mac address/ {print $2}')
