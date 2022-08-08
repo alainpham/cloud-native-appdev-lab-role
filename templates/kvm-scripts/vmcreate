@@ -96,13 +96,13 @@ echo "sudo virt-install --import \
   --noautoconsole \
   --cpu host-passthrough"
 
-sudo virt-install --import \ 
+sudo virt-install --import \
   --name $1 \
   --ram $MEM \
   --vcpus $CPUS \
-  --disk $VMS_DIR/$DISK,format=qcow2,bus=virtio \ 
+  --disk $VMS_DIR/$DISK,format=qcow2,bus=virtio \
   --disk $VMS_DIR/$DATA_DISK,format=qcow2,bus=virtio \
-  --disk $CI_ISO,readonly=on \ 
+  --disk $CI_ISO,readonly=on \
   --network bridge=$BRIDGE,model=virtio,mac=$MAC \
   --os-variant=$OS_VARIANT \
   --noautoconsole \
