@@ -76,7 +76,7 @@ appconfig:
     ip: 172.18.0.61
   kafka: 
     ip: 172.18.0.62
-    image: quay.io/strimzi/kafka:0.29.0-kafka-3.1.0
+    image: quay.io/strimzi/kafka:0.30.0-kafka-3.2.0
   kafdrop: 
     ip: 172.18.0.63
     image: obsidiandynamics/kafdrop:3.30.0
