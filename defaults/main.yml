@@ -43,7 +43,7 @@ appconfig:
     image: joxit/docker-registry-ui:2.2.1
   traefik: 
     ip: 172.18.0.43
-    image: traefik:v2.8
+    image: traefik:v2.8.1
   keycloak: 
     ip: 172.18.0.48
     image: quay.io/keycloak/keycloak:19.0.1
