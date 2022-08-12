@@ -70,6 +70,9 @@ appconfig:
   adminer:
     ip: 172.18.0.57
     image: adminer:4.8.1
+  minio:
+    ip: 172.18.0.58
+    image: minio/minio:RELEASE.2022-08-11T04-37-28Z.fips
 
   # messaging
   zookeeper: 
