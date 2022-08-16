@@ -2,8 +2,10 @@
 global:
   scrape_interval: 8s
   evaluation_interval: 8s
-# remote_write:
-#   - url: https://somemimir/api/prom/push
+remote_write:
+  - url: http://mimir.kube.loc/api/v1/push
+    tls_config:
+      ca_file: /tls/root-ca.pem
 #     basic_auth:
 #       username: 433408
 #       password: 

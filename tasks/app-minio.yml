@@ -32,6 +32,8 @@
     user: "1000:1000"
     command: server /data --console-address ":9001"
     env:
+      MINIO_ACCESS_KEY: admin
+      MINIO_SECRET_KEY: password
     ports:
     labels: |
       {
