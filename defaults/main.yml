@@ -27,7 +27,10 @@ appconfig:
   myapp: 
     ip: 172.18.0.20 
     image: 
-  
+  smoke-test:
+    ip: 172.18.0.29
+    image: alainpham/smoke-test-app:latest
+
   # platform essentials
   portainer: 
     ip: 172.18.0.40
@@ -98,7 +101,7 @@ appconfig:
     image: prom/prometheus:v2.37.0
   grafana: 
     ip: 172.18.0.71
-    image: grafana/grafana:9.0.5
+    image: grafana/grafana:9.1.0
   loki: 
     ip: 172.18.0.72
     image: grafana/loki:2.6.1
@@ -107,13 +110,13 @@ appconfig:
     image: grafana/promtail:2.6.1
   grafana-enterprise: 
     ip: 172.18.0.74
-    image: grafana/grafana-enterprise:9.0.5
+    image: grafana/grafana-enterprise:9.1.0
   grafana-agent:
     ip: 172.18.0.75
-    image: grafana/agent:v0.26.0
+    image: grafana/agent:v0.26.1
   grafana-alpha: 
     ip: 172.18.0.76
-    image: grafana/grafana-oss-dev:9.1.0-72380pre
+    image: grafana/grafana-oss-dev:9.2.0-75418pre
 
 # states can absent present stopped started
 appstate: started

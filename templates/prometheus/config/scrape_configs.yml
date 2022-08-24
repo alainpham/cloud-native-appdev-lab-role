@@ -100,9 +100,61 @@ scrape_configs:
         replacement: $1-$2
       - target_label: namespace
         replacement: camel
+    scheme: https
+    tls_config:
+      ca_file: /tls/root-ca.pem
     static_configs:
       - targets:
           - "bqueue.{{ inventory_hostname }}"
+          - "smoke-test.{{ inventory_hostname }}"
+
+  - job_name: "camelquarkus-dev"
+    metrics_path: /q/metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: application
+        replacement: $1
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: node_name
+        replacement: $2
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: kubernetes_pod_name
+        replacement: $1-$2
+      - target_label: namespace
+        replacement: camel
+    static_configs:
+      - targets:
+          - "dev.{{ inventory_hostname }}:8090"          
+
+  - job_name: "camelspring-dev"
+    metrics_path: /actuator/prometheus
+    relabel_configs:
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: application
+        replacement: $1
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: node_name
+        replacement: $2
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: kubernetes_pod_name
+        replacement: $1-$2
+      - target_label: namespace
+        replacement: camel
+    static_configs:
+      - targets:
+          - "dev.{{ inventory_hostname }}:8190"   
 
   - job_name: "kafka"
     relabel_configs:

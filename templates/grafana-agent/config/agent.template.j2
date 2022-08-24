@@ -1,14 +1,10 @@
 server:
   log_level: info
-  http_listen_address: 0.0.0.0
-  http_listen_port: 80
-  grpc_listen_address: 0.0.0.0
-  grpc_listen_port: 9095
 
 metrics:
   wal_directory: /grafana/wal
   global:
-    scrape_interval: 30s
+    scrape_interval: 15s
     remote_write:
     - url: "{{ secretappconfig['grafana-agent'].metrics.url }}"
       basic_auth:

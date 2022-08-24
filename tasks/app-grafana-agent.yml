@@ -46,7 +46,7 @@
     container_default_behavior: no_defaults
     detach: true
     user: "1000:1000"
-    command: 
+    command: --config.file=/etc/agent/agent.yaml --metrics.wal-directory=/etc/agent/data --server.http.address=0.0.0.0:80
     env:
     ports:
     labels: |
