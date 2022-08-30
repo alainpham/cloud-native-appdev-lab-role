@@ -1,86 +1,87 @@
+
 activity_tracker:
-    filepath: /data/mimir-logs/metrics-activity.log
+  filepath: /data/metrics-activity.log
 alertmanager:
-    data_dir: /data
-    enable_api: true
-    external_url: /alertmanager
+  data_dir: /data
+  enable_api: true
+  external_url: /alertmanager
 alertmanager_storage:
-    backend: s3
-    s3:
+  backend: s3
+  s3:
     access_key_id: ${RULER_AWS_ACCESS_KEY_ID}
     bucket_name: ${RULER_BUCKET_NAME}
     endpoint: ${RULER_BUCKET_HOST}
     insecure: true
     secret_access_key: ${RULER_AWS_SECRET_ACCESS_KEY}
 blocks_storage:
-    backend: s3
-    bucket_store:
+  backend: s3
+  bucket_store:
     chunks_cache:
-        backend: memcached
-        memcached:
+      backend: memcached
+      memcached:
         addresses: dns+mimir-chunks-cache.mimir.svc:11211
         max_item_size: 1048576
         timeout: 450ms
     index_cache:
-        backend: memcached
-        memcached:
+      backend: memcached
+      memcached:
         addresses: dns+mimir-index-cache.mimir.svc:11211
         max_item_size: 15728640
     metadata_cache:
-        backend: memcached
-        memcached:
+      backend: memcached
+      memcached:
         addresses: dns+mimir-metadata-cache.mimir.svc:11211
         max_item_size: 1048576
     sync_dir: /data/tsdb-sync
-    s3:
+  s3:
     access_key_id: ${RULER_AWS_ACCESS_KEY_ID}
     bucket_name: ${RULER_BUCKET_NAME}
     endpoint: ${RULER_BUCKET_HOST}
     insecure: true
     secret_access_key: ${RULER_AWS_SECRET_ACCESS_KEY}
-    tsdb:
+  tsdb:
     dir: /data/tsdb
 compactor:
-    data_dir: /data
+  data_dir: /data
 frontend:
-    align_queries_with_step: true
-    cache_results: true
-    log_queries_longer_than: 10s
-    results_cache:
+  align_queries_with_step: true
+  cache_results: true
+  log_queries_longer_than: 10s
+  results_cache:
     backend: memcached
     memcached:
-        addresses: dns+mimir-results-cache.mimir.svc:11211
-        max_item_size: 1048576
+      addresses: dns+mimir-results-cache.mimir.svc:11211
+      max_item_size: 1048576
 frontend_worker:
-    frontend_address: mimir-query-frontend-headless.mimir.svc:9095
+  frontend_address: mimir-query-frontend-headless.mimir.svc:9095
 ingester:
-    ring:
+  ring:
     final_sleep: 0s
     num_tokens: 512
     unregister_on_shutdown: false
 ingester_client:
-    grpc_client_config:
+  grpc_client_config:
     max_recv_msg_size: 104857600
     max_send_msg_size: 104857600
 limits: {}
 memberlist:
-    abort_if_cluster_join_fails: false
-    compression_enabled: false
-    join_members:
-    - mimir-gossip-ring
+  abort_if_cluster_join_fails: false
+  compression_enabled: false
+  join_members:
+  - mimir-gossip-ring
 ruler:
-    alertmanager_url: dnssrvnoa+http://_http-metrics._tcp.mimir-alertmanager-headless.mimir.svc.cluster.local/alertmanager
-    enable_api: true
-    rule_path: /data
+  alertmanager_url: dnssrvnoa+http://_http-metrics._tcp.mimir-alertmanager-headless.mimir.svc.cluster.local/alertmanager
+  enable_api: true
+  rule_path: /data
 ruler_storage:
-    backend: s3
-    s3:
+  backend: s3
+  s3:
     access_key_id: ${RULER_AWS_ACCESS_KEY_ID}
     bucket_name: ${RULER_BUCKET_NAME}
     endpoint: ${RULER_BUCKET_HOST}
     insecure: true
     secret_access_key: ${RULER_AWS_SECRET_ACCESS_KEY}
 runtime_config:
-    file: /var/mimir/runtime.yaml
+  file: /var/mimir/runtime.yaml
 server:
-    grpc_server_max_concurrent_streams: 1000
+  grpc_server_max_concurrent_streams: 1000

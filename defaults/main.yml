@@ -76,6 +76,9 @@ appconfig:
   minio:
     ip: 172.18.0.58
     image: minio/minio:RELEASE.2022-08-11T04-37-28Z.fips
+  memecached:
+    ip: 172.18.0.59
+    image: memcached:1.6.16-alpine
 
   # messaging
   zookeeper: 
