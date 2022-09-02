@@ -1,10 +1,10 @@
 user=ra
-
+password=password
 rawtoken=$( curl -s \
     -d "client_id=grafana-enterprise.work.lan" \
     -d "client_secret=e2dt6BF1roELLGmksmArt9aIgm7jB6lB" \
     -d "username=$user" \
-    -d "password=password" \
+    -d "password=$password" \
     -d "grant_type=password" \
     https://keycloak.work.lan/realms/apps/protocol/openid-connect/token)
 
