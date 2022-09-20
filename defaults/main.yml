@@ -7,20 +7,31 @@ docker:
   dns: 
     - 172.17.0.1
     - 172.18.0.1
-    - 192.168.8.200
     - 8.8.8.8
 
 dnsmasq:
   # listen: 0.0.0.0
+  dhcp-range: 192.168.8.8,192.168.8.253,255.255.255.0,12h
+  dhcp-option-router: option:router,192.168.8.1
+  dhcp-option-dns: option:dns-server,192.168.8.1
   address:
-    - hostname: bbee.lan
-      ip: 192.168.8.153
-    - hostname: work.lan
-      ip: 192.168.8.154
-    - hostname: asus.lan
-      ip: 192.168.8.108
+    # gateway
+    - hostname: gate.lan
+      ip: 192.168.8.1
+      mac: "00:00:00:00:00:00"
+    
+    # dns dhcp
     - hostname: cipi.lan
-      ip: 192.168.8.200
+      ip: 192.168.8.254
+      mac: "00:00:00:00:00:00"
+    
+    # 24/7 on servers
+    - hostname: awon.lan
+      ip: 192.168.8.100
+      mac: "00:00:00:00:00:00"
+    - hostname: bbee.lan
+      ip: 192.168.8.101
+      mac: "00:00:00:00:00:00"
 
 appconfig:
   # functional apps from 20 to 30 ip range

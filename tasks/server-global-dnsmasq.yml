@@ -10,10 +10,39 @@
   become: true
   lineinfile:
     dest: /etc/dnsmasq.conf
-    regexp: '.*{{ item.hostname }}.*'
+    regexp: '.*address=.*{{ item.hostname }}.*'
     line: "address=/{{ item.hostname }}/{{ item.ip }}"
   loop: "{{dnsmasq.address}}"
     
+- name: dhcp range
+  become: true
+  lineinfile:
+    dest: /etc/dnsmasq.conf
+    regexp: '.*dhcp-range=.*'
+    line: "dhcp-range={{ dnsmasq['dhcp-range'] }}"
+
+- name: dhcp router
+  become: true
+  lineinfile:
+    dest: /etc/dnsmasq.conf
+    regexp: '.*dhcp-option=option:router.*'
+    line: "dhcp-option={{ dnsmasq['dhcp-option-router'] }}"
+
+- name: dhcp dns
+  become: true
+  lineinfile:
+    dest: /etc/dnsmasq.conf
+    regexp: '.*dhcp-option=option:dns-server.*'
+    line: "dhcp-option={{ dnsmasq['dhcp-option-dns'] }}"
+
+- name: dhcp-hosts
+  become: true
+  lineinfile:
+    dest: /etc/dnsmasq.conf
+    regexp: '.*dhcp-host.*{{ item.hostname }}.*'
+    line: "dhcp-host={{ item.mac }},{{ item.hostname }},{{ item.ip }},infinite"
+  loop: "{{dnsmasq.address}}"
+
 # by default we do not start dnsmasq service
 - name: start dnsmasq service
   become: true
