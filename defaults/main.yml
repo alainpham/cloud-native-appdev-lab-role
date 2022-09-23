@@ -6,8 +6,6 @@ docker:
     - registry.hpel.lan
   dns: 
     - 172.17.0.1
-    - 172.18.0.1
-    - 8.8.8.8
 
 dnsmasq:
   # listen: 0.0.0.0
