@@ -1,9 +1,8 @@
 ---
 docker:
   registries:
-    - registry.cipi.lan
     - registry.work.lan
-    - registry.hpel.lan
+    - registry.awon.lan
   dns: 
     - 172.17.0.1
 
