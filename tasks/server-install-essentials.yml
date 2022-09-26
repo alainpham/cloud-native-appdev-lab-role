@@ -7,6 +7,7 @@
       - ansible
       - docker.io
       - docker-compose
+      - python3-docker
       - apparmor
       - tmux
       - vim
@@ -15,9 +16,21 @@
       - curl
       - rsync
       - dnsmasq
+      - ncdu
+      - apt-cacher-ng
       - npm
     state: present
+# sudo apt install git ansible docker.io docker-compose apparmor tmux vim openjdk-17-jdk-headless prometheus-node-exporter curl rsync dnsmasq ncdu npm python3-docker
+# sudo apt install git ansible docker.io vim openjdk-17-jdk-headless prometheus-node-exporter curl rsync dnsmasq ncdu python3-docker
 
+
+# - name: Network manager
+#   become: true
+#   when: globaldnsserver is undefined or globaldnsserver == false
+#   apt:
+#     name: 
+#       - network-manager
+#     state: present
 
 # by default we do not start dnsmasq service
 - name: disable dnsmasq service
@@ -26,3 +39,18 @@
     enabled: false
     state: stopped
     name: dnsmasq
+
+# by default we do not start resolved service
+- name: disable dnsmasq service
+  become: true
+  ansible.builtin.systemd:
+    enabled: false
+    state: stopped
+    name: systemd-resolved
+
+- name: systemd-resolved
+  become: true
+  when: globaldnsserver is undefined or globaldnsserver == false
+  shell: |
+    rm /etc/resolv.conf
+    touch /etc/resolv.conf

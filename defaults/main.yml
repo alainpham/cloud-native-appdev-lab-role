@@ -7,6 +7,8 @@ docker:
   dns: 
     - 172.17.0.1
 
+aptproxy: http://192.168.8.100:3142
+
 dnsmasq:
   # listen: 0.0.0.0
   dhcp-range: 192.168.8.8,192.168.8.253,255.255.255.0,12h
@@ -43,7 +45,7 @@ appconfig:
   # platform essentials
   portainer: 
     ip: 172.18.0.40
-    image: portainer/portainer-ce:2.14.2
+    image: portainer/portainer-ce:2.15.1
   nexus: 
     ip: 172.18.0.41
     image: sonatype/nexus3:3.40.1
@@ -94,7 +96,7 @@ appconfig:
     ip: 172.18.0.61
   kafka: 
     ip: 172.18.0.62
-    image: quay.io/strimzi/kafka:0.30.0-kafka-3.2.0
+    image: quay.io/strimzi/kafka:0.31.1-kafka-3.1.2
   kafdrop: 
     ip: 172.18.0.63
     image: obsidiandynamics/kafdrop:3.30.0
@@ -110,10 +112,10 @@ appconfig:
   # observability
   prometheus: 
     ip: 172.18.0.70
-    image: prom/prometheus:v2.37.0
+    image: prom/prometheus:v2.38.0
   grafana: 
     ip: 172.18.0.71
-    image: grafana/grafana:9.1.0
+    image: grafana/grafana:9.1.6
   loki: 
     ip: 172.18.0.72
     image: grafana/loki:2.6.1
@@ -122,7 +124,7 @@ appconfig:
     image: grafana/promtail:2.6.1
   grafana-enterprise: 
     ip: 172.18.0.74
-    image: grafana/grafana-enterprise:9.1.0
+    image: grafana/grafana-enterprise:9.1.6
   grafana-agent:
     ip: 172.18.0.75
     image: grafana/agent:v0.26.1

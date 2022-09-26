@@ -1,0 +1,54 @@
+
+- name: apt repo proxy for faster install
+  become: true
+  lineinfile:
+    dest: /etc/apt/apt.conf.d/proxy
+    regexp: '.*Acquire::http::Proxy.*'
+    create: true
+    line: |
+      Acquire::http::Proxy "{{ aptproxy }}";
+
+# - name: Enable dnsmasq
+#   become: true
+#   when: globaldnsserver is undefined or globaldnsserver == false
+#   shell: |
+#     bash -c 'cat > /etc/NetworkManager/conf.d/00-use-dnsmasq.conf << _EOF_
+#     # /etc/NetworkManager/conf.d/00-use-dnsmasq.conf
+#     #
+#     # This enabled the dnsmasq plugin.
+#     [main]
+#     dns=dnsmasq
+#     _EOF_'
+
+# - name: Enable dnsmasq
+#   become: true
+#   when: globaldnsserver is undefined or globaldnsserver == false
+#   shell: |
+#     mkdir -p /etc/NetworkManager/dnsmasq.d/
+#     bash -c 'cat > /etc/NetworkManager/dnsmasq.d/dev.conf << _EOF_
+#     #/etc/NetworkManager/dnsmasq.d/dev.conf
+#     listen-address=127.0.0.1,172.17.0.1
+#     address=/{{ inventory_hostname }}/172.17.0.1
+#     address=/{{ inventory_hostname }}/172.18.0.1
+#     address=/{{ inventory_hostname }}/192.168.122.1
+#     address=/kube.loc/192.168.122.10
+#     address=/sandbox.lan/192.168.122.30
+
+#     server=/lan/192.168.8.254
+#     _EOF_'
+
+# - name: systemd-resolved
+#   become: true
+#   when: globaldnsserver is undefined or globaldnsserver == false
+#   shell: |
+#     rm /etc/resolv.conf
+#     touch /etc/resolv.conf
+
+
+# - name: start dnsmasq service through network manager
+#   become: true
+#   when: globaldnsserver is undefined or globaldnsserver == false
+#   ansible.builtin.systemd:
+#     enabled: true
+#     state: restarted
+#     name: NetworkManager
