@@ -121,6 +121,7 @@ appconfig:
     ip: 172.18.0.76
     image: grafana/grafana-oss-dev:9.2.0-75418pre
 
+
 # states can absent present stopped started
 appstate: started
 recreate: false
