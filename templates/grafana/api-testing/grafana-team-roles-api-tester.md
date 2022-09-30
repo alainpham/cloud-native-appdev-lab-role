@@ -1,6 +1,6 @@
-# Testing team and rbac assignements through Grafan API
+# Testing team and rbac assignements through Grafana API
 
-- [Testing team and rbac assignements through Grafan API](#testing-team-and-rbac-assignements-through-grafan-api)
+- [Testing team and rbac assignements through Grafana API](#testing-team-and-rbac-assignements-through-grafana-api)
   - [Get all teams](#get-all-teams)
   - [Check if access control is enabled](#check-if-access-control-is-enabled)
   - [Get all roles available](#get-all-roles-available)
