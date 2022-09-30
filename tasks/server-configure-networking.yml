@@ -8,6 +8,14 @@
     line: |
       Acquire::http::Proxy "{{ aptproxy }}";
 
+- name: prepend dnsmasq
+  become: true
+  lineinfile:
+    dest: /etc/dhcp/dhclient.conf
+    regexp: '.domain-name-servers.127.0.0.1.*'
+    line: |
+      prepend domain-name-servers 127.0.0.1;
+
 # - name: Enable dnsmasq
 #   become: true
 #   when: globaldnsserver is undefined or globaldnsserver == false
