@@ -21,7 +21,7 @@
       - npm
     state: present
 # sudo apt install git ansible docker.io docker-compose apparmor tmux vim openjdk-17-jdk-headless prometheus-node-exporter curl rsync dnsmasq ncdu npm python3-docker
-# sudo apt install git ansible docker.io vim openjdk-17-jdk-headless prometheus-node-exporter curl rsync dnsmasq ncdu python3-docker
+# sudo apt install git ansible docker.io vim openjdk-17-jdk-headless prometheus-node-exporter curl rsync dnsmasq ncdu python3-docker dnsutils bmon
 
 
 # - name: Network manager

@@ -15,8 +15,8 @@
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/data
     state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    owner: "1000"
+    group: "1000"
     mode: '0755'
 
 
@@ -29,14 +29,17 @@
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     detach: true
-    user: "1000:1000"
+    user:
     command:
     env:
+      JAVA_OPTS: "-Xmx64M"
+      REPOSILITE_OPTS: --token admin:password
     ports:
     labels: |
       {
         "traefik.http.routers.{{appname}}.entrypoints": "https",
-        "traefik.http.routers.{{appname}}.tls": "true"
+        "traefik.http.routers.{{appname}}.tls": "true",
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "8080"
       }
     volumes:
       - "/home/{{ansible_user}}/apps/{{appname}}/data:/app/data:rw"

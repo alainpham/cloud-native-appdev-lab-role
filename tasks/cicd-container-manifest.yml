@@ -1,0 +1,10 @@
+---
+- name: create docker manifest
+  shell: | 
+     docker manifest create {{ item.1.1 }}/{{ item.0.0.artifactId }}:{{ item.0.0.buildVersion }} -a {{ item.1.1 }}/{{ item.0.0.artifactId }}:{{ item.0.0.buildVersion }}-{{ item.0.1 }}
+  loop: "{{ ( apps | subelements('arch') ) | product(apps | subelements('registries')) | list   }}"
+
+- name: create push multi arch manifest
+  shell: | 
+    docker manifest push {{ item.1 }}/{{ item.0.artifactId }}:{{ item.0.buildVersion }}
+  loop: "{{  apps | subelements('registries')   }}"

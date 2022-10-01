@@ -62,7 +62,7 @@ appconfig:
     image: quay.io/keycloak/keycloak:19.0.1
   reposilite: 
     ip: 172.18.0.49
-    image: dzikoysk/reposilite:2.9.26
+    image: dzikoysk/reposilite:3.0.3
     
   # databases
   mysql: 
@@ -136,6 +136,8 @@ appconfig:
 appstate: started
 recreate: false
 purge: false
+
+
 
 secretappconfig:
   promtail:
