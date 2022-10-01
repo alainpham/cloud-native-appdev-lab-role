@@ -8,6 +8,7 @@ docker:
 
 aptproxy: http://192.168.8.100:3142
 
+# global dnsmasq config. useful in home networks not so much on single host
 dnsmasq:
   # listen: 0.0.0.0
   dhcp-range: 192.168.8.8,192.168.8.253,255.255.255.0,12h
@@ -106,7 +107,7 @@ appconfig:
     image: provectuslabs/kafka-ui:v0.4.0
   artemis: 
     ip: 172.18.0.66
-    image: alainpham/artemis:1.0.5
+    image: alainpham/artemis:2.26.0
 
   # observability
   prometheus: 
@@ -130,7 +131,9 @@ appconfig:
   grafana-alpha: 
     ip: 172.18.0.76
     image: grafana/grafana-oss-dev:9.2.0-75418pre
-
+  cadvisor: 
+    ip: 172.18.0.77
+    image: gcr.io/cadvisor/cadvisor:v0.45.0
 
 # states can absent present stopped started
 appstate: started
@@ -138,7 +141,7 @@ recreate: false
 purge: false
 
 
-
+# Example of sensible data config. Should be written in private repo
 secretappconfig:
   promtail:
     url: to be overwrittend by group or host vars
@@ -151,3 +154,40 @@ secretappconfig:
       pwd: overwrite this
     logs:
       url: overwrite this
+
+# Example of CICD built apps
+apps: 
+  - artifactId: rentman
+    groupId: com.itteddy
+    cleanStart: true
+    repo: git@github.com:itteddy/rentman.git
+    version: master
+    dockerfile: src/main/docker/Dockerfile.multiarch
+    artifact: target/quarkus-app
+    type: folder
+    buildVersion: "1.0.3"
+    nextVersion:
+    subfolder: 
+    mavenrepo: https://admin:password@reposilite.awon.lan/releases
+    arch:
+      - linux-amd64
+      - linux-arm-v7
+    registries: 
+      - registry.awon.lan
+  - artifactId: teddycast
+    groupId: com.itteddy
+    cleanStart: true
+    repo: git@github.com:itteddy/teddycast.git
+    version: master
+    dockerfile: src/main/docker/Dockerfile.multiarch
+    artifact: target/quarkus-app
+    type: folder
+    buildVersion: "1.0.2"
+    nextVersion:
+    subfolder: 
+    mavenrepo: https://admin:password@reposilite.awon.lan/releases
+    arch:
+      - linux-amd64
+      - linux-arm-v7
+    registries: 
+      - registry.awon.lan

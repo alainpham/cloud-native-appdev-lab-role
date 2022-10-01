@@ -15,8 +15,8 @@
   file:
     path: /home/{{ ansible_user }}/apps/{{appname}}/data
     state: directory
-    owner: "1000"
-    group: "1000"
+    owner: "185"
+    group: "185"
     mode: '0755'
 
 - name: Create {{appname}} folders
@@ -31,17 +31,24 @@
 
 - name: "Manage artemis container state - {{appstate}} - {{ips.artemis}}"
   docker_container:
-    name: "{{appname}}"
+    name: "artemis"
+    # image: quay.io/artemiscloud/activemq-artemis-broker-kubernetes:1.0.5
     image: "{{appconfig[appname].image}}"
     state: "{{appstate}}"
     recreate: "{{recreate}}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     detach: true
-    user: "1000:1000"
+    user: "185:185"
     command: 
     env:
-      JAVA_APPEND_ARG: "-Xms64M -Xmx128M"
+      AMQ_USER: admin
+      AMQ_PASSWORD: password
+      AMQ_ROLE: admin
+      AMQ_REQUIRE_LOGIN: "false"
+      AMQ_ENABLE_METRICS_PLUGIN: "true"
+      AMQ_JOURNAL_TYPE: "nio"
+      AMQ_DATA_DIR: /artemisdata
     ports:
     labels: |
       {
@@ -58,7 +65,7 @@
         "traefik.http.routers.{{appname}}-console.service": "{{appname}}-console"
       }
     volumes:
-      - "/home/{{ansible_user}}/apps/{{appname}}/data:/home/appuser/broker/data:rw"
+      - "/home/{{ansible_user}}/apps/{{appname}}/data:/artemisdata:rw"
     networks_cli_compatible: yes
     network_mode: primenet
     networks:

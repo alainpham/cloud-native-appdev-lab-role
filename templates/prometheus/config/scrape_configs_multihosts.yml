@@ -1,0 +1,204 @@
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "node"
+    relabel_configs:
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+):(.+)'
+        target_label: node_name
+        replacement: $1
+    static_configs:
+      - targets:
+{% for item in prom.node %}
+          - "{{ item }}"
+{% endfor %}
+
+  - job_name: "cadvisor"
+    relabel_configs:
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+):(.+)'
+        target_label: node_name
+        replacement: $1
+    scheme: https
+    tls_config:
+      ca_file: /tls/root-ca.pem
+    static_configs:
+      - targets:
+{% for item in prom.cadvisor %}
+          - "{{ item }}"
+{% endfor %}
+
+  - job_name: "traefik"
+    relabel_configs:
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+):(.+)'
+        target_label: node_name
+        replacement: $1
+    static_configs:
+      - targets:
+{% for item in prom.traefik %}
+          - "{{ item }}"
+{% endfor %}
+
+  - job_name: "o11y"
+    relabel_configs:
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: application
+        replacement: $1
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: node_name
+        replacement: $2
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: kubernetes_pod_name
+        replacement: $1-$2
+      - target_label: namespace
+        replacement: o11y
+    scheme: https
+    tls_config:
+      ca_file: /tls/root-ca.pem
+    static_configs:
+      - targets:
+{% for item in prom.o11y %}
+          - "{{ item }}"
+{% endfor %}
+
+  - job_name: "activemq-artemis"
+    relabel_configs:
+      - target_label: application
+        replacement: activemq-artemis
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: node_name
+        replacement: $2
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: kubernetes_pod_name
+        replacement: activemq-artemis-$2
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: statefulset_kubernetes_io_pod_name
+        replacement: activemq-artemis-$2
+      - target_label: broker
+        replacement: activemq-artemis
+      - target_label: namespace
+        replacement: activemq-artemis
+    static_configs:
+      - targets:
+{% for item in prom.artemis %}
+          - "{{ item }}"
+{% endfor %}
+
+  - job_name: "camelquarkus"
+    metrics_path: /q/metrics
+    relabel_configs:
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: application
+        replacement: $1
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: node_name
+        replacement: $2
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: kubernetes_pod_name
+        replacement: $1-$2
+      - target_label: namespace
+        replacement: camel
+    scheme: https
+    tls_config:
+      ca_file: /tls/root-ca.pem
+    static_configs:
+      - targets:
+{% for item in prom.camelquarkus %}
+          - "{{ item }}"
+{% endfor %}
+
+
+  - job_name: "camelspring"
+    metrics_path: /actuator/prometheus
+    relabel_configs:
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: application
+        replacement: $1
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: node_name
+        replacement: $2
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: kubernetes_pod_name
+        replacement: $1-$2
+      - target_label: namespace
+        replacement: camel
+    static_configs:
+      - targets:
+{% for item in prom.camelspring %}
+          - "{{ item }}"
+{% endfor %}
+
+  - job_name: "kafka"
+    relabel_configs:
+      - target_label: application
+        replacement: kafka
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: node_name
+        replacement: $2
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: kubernetes_pod_name
+        replacement: kafka-$2
+      - target_label: namespace
+        replacement: kafka
+      - target_label: strimzi_io_cluster
+        replacement: kafka
+    static_configs:
+      - targets:
+{% for item in prom.kafka %}
+          - "{{ item }}"
+{% endfor %}
+
+  - job_name: "zookeeper"
+    relabel_configs:
+      - target_label: application
+        replacement: kafka
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: node_name
+        replacement: $2
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: kubernetes_pod_name
+        replacement: zookeeper-$2
+      - target_label: namespace
+        replacement: kafka
+      - target_label: strimzi_io_cluster
+        replacement: kafka
+    static_configs:
+      - targets:
+{% for item in prom.zookeeper %}
+          - "{{ item }}"
+{% endfor %}

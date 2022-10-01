@@ -9,4 +9,8 @@ global:
 #     basic_auth:
 #       username: 433408
 #       password: 
+{% if prom is defined %}
+{% include 'scrape_configs_multihosts.yml' %}
+{% else %}
 {% include 'scrape_configs.yml' %}
+{% endif %}
