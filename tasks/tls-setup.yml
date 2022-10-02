@@ -134,6 +134,7 @@
     -noprompt \
     -keystore /home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.p12 \
     -file /home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}.pem
+  ignore_errors: true
 
 - name: Create truststore
   when: not truststore.stat.exists
@@ -148,7 +149,7 @@
 
 - name: manual instructions to be done if wanted
   debug:
-    msg: copy {{inventory_hostname}}-root-ca.pem to /usr/local/share/ca-certificates and run sudo update-ca-certificates
+    msg: sudo cp /home/{{ ansible_user }}/apps/tls/{{inventory_hostname}}-root-ca.pem /usr/local/share/ca-certificates/{{inventory_hostname}}-root-ca.crt && sudo update-ca-certificates
 
 - name: import in chrome certificates
   debug:
