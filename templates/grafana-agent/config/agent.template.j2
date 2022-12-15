@@ -1,21 +1,78 @@
 server:
   log_level: info
 
+integrations:
+
+  app_agent_receiver_configs:
+    - autoscrape:
+        enable: true
+        metrics_instance: 'mimir'
+      instance: 'frontend'
+      logs_instance: 'loki'
+      traces_instance: 'tempo'
+      server:
+        host: 0.0.0.0
+        port: 12347
+        cors_allowed_origins:
+          - http://*.{{inventory_hostname}}
+        api_key: 'secret' # optional, if set, client will be required to provide it via x-api-key header
+      logs_labels: # labels to add to loki log record
+        app: 'web-shop-frontend' # static value
+        service: 'web-shop-frontend'
+        kind: # value will be taken from log items. exception, log, measurement, etc
+      logs_send_timeout: 5000
+      sourcemaps:
+        download: true # will download source file, extract source map location,
+
 metrics:
-  wal_directory: /grafana/wal
+  wal_directory: /data/metrics/wal
   global:
     scrape_interval: 15s
     remote_write:
-    - url: "{{ secretappconfig['grafana-agent'].metrics.url }}"
-      basic_auth:
-        username: "{{ secretappconfig['grafana-agent'].metrics.user }}"
-        password: "{{ secretappconfig['grafana-agent'].metrics.pwd }}"
+    - url: "http://mimir:9090/api/v1/push"
   configs:
-    - name: allsystems
+    - name: mimir
 {% filter indent(width=6) %}
       {% include 'scrape_configs.yml' %}
 {% endfilter %}
 
-# integrations:
-#   agent:
-#     enabled: true
+logs:
+  configs:
+  - name: loki
+    clients:
+      - url: http://loki/loki/api/v1/push
+        external_labels:
+          job: agent
+  positions_directory: /data/logs/positions
+
+traces:
+  configs:
+  - name: tempo
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+          http:
+    remote_write:
+      - endpoint: tempo:4317
+        insecure: true
+    #service_graphs:
+    #    enabled: true
+    #spanmetrics:
+    #  dimensions:
+    #    - name: http.method
+    #    - name: http.target
+    #    - name: team.name
+    #  handler_endpoint: 0.0.0.0:1234
+    automatic_logging:
+      backend: logs_instance
+      logs_instance_name: loki
+      roots: true
+      processes: true
+      spans: true
+      span_attributes:
+        - http.method
+        - http.target
+        - http.status_code
+      overrides:
+        trace_id_key: "traceId"

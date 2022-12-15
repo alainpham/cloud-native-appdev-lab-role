@@ -18,9 +18,12 @@ scrape_configs:
         regex: '(.+)\.(.+):(.+)'
         target_label: node_name
         replacement: $1
+    scheme: https
+    tls_config:
+      ca_file: /tls/root-ca.pem
     static_configs:
       - targets:
-          - "{{ inventory_hostname }}:8080"
+          - "traefik.{{ inventory_hostname }}"
 
   - job_name: "o11y"
     relabel_configs:
@@ -200,3 +203,40 @@ scrape_configs:
     static_configs:
       - targets:
           - "zookeeper-metrics.{{ inventory_hostname }}"
+
+# webshop
+
+  - job_name: 'web-shop'
+    static_configs:
+      - targets: ['web-shop:6666']
+        labels:
+          group: 'shop'
+          service: 'web-shop'
+          compose_service: web-shop
+          compose_project: web-shop-o11y-demo
+
+  - job_name: 'shopping-cart'
+    static_configs:
+      - targets: ['shopping-cart:5555']
+        labels:
+          group: 'shop'
+          service: 'shopping-cart'
+          compose_service: shopping-cart
+          compose_project: web-shop-o11y-demo
+
+  - job_name: 'products'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['products:8080']
+        labels:
+          group: 'shop'
+          service: 'products'
+          compose_service: products
+          compose_project: web-shop-o11y-demo
+
+  - job_name: 'span-metrics'
+    static_configs:
+      - targets: ['grafana-agent:1234']
+        labels:
+          group: 'shop'
+          compose_project: web-shop-o11y-demo

@@ -2,22 +2,11 @@
 - set_fact:
     appname: grafana-agent
 
-- name: purge {{appname}} folders
-  when: purge
-  become: true
-  file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}
-    state: absent
 
-- name: Create {{appname}} folders
-  when: appstate == 'started'
-  become: true
-  file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}/config/
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: '0755'
+- name: provision infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-provision
 
 - name: Template {{appname}} config
   when: appstate == 'started'
@@ -39,28 +28,54 @@
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:
     name: "{{appname}}"
+    hostname: "{{appname}}"
     image: "{{appconfig[appname].image}}"
-    state: "{{appstate}}"
-    recreate: "{{recreate}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     detach: true
-    user: "1000:1000"
-    command: --config.file=/etc/agent/agent.yaml --metrics.wal-directory=/etc/agent/data --server.http.address=0.0.0.0:80
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+    ports: "{{ appconfig[appname].ports | default(omit,true)}}"
+    command: -config.file=/etc/agent/agent.yml -server.http.address=0.0.0.0:80  -enable-features=integrations-next -config.enable-read-api
     env:
-    ports:
     labels: |
       {
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "80",
+        "traefik.http.routers.{{appname}}.service": "{{appname}}",
         "traefik.http.routers.{{appname}}.entrypoints": "https",
         "traefik.http.routers.{{appname}}.tls": "true",
-        "traefik.http.services.{{appname}}.loadbalancer.server.port": "80"
+        "traefik.http.routers.{{appname}}.rule": "Host(`{{appname}}.{{inventory_hostname}}`)",
+
+
+        "traefik.http.services.{{appname}}-front-end-receiver.loadbalancer.server.port": "12347",
+        "traefik.http.routers.{{appname}}-front-end-receiver.service": "{{appname}}-front-end-receiver",
+        "traefik.http.routers.{{appname}}-front-end-receiver.entrypoints": "http",
+        "traefik.http.routers.{{appname}}-front-end-receiver.tls": "false",
+        "traefik.http.routers.{{appname}}-front-end-receiver.rule": "Host(`{{appname}}-front-end-receiver.{{inventory_hostname}}`)",
       }
     volumes:
-      - /home/{{ ansible_user }}/apps/{{appname}}/config/agent.yml:/etc/agent/agent.yaml:ro
-      - /home/{{ ansible_user }}/apps/{{appname}}/data:/etc/agent/data:rw
+      - /home/{{ ansible_user }}/apps/{{appname}}/config/agent.yml:/etc/agent/agent.yml:ro
+      - /home/{{ ansible_user }}/apps/{{appname}}/data:/data:rw
       - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/tls/root-ca.pem:ro
     networks_cli_compatible: yes
     network_mode: primenet
     networks:
       - name: primenet
         ipv4_address: "{{appconfig[appname].ip}}"
+
+- name: Check if server is up {{inventory_hostname}}
+  when:  appconfig[appname].appstate == 'started'
+  uri:
+    url: "https://{{appname}}.{{inventory_hostname}}/-/ready"
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 2
+
+- name: delete infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-delete

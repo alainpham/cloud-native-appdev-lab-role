@@ -2,40 +2,24 @@
 - set_fact:
     appname: grafana
 
-- name: purge {{appname}} folders
-  when: purge
-  become: true
-  file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}
-    state: absent
-
-- name: Create {{appname}} folders
-  when: appstate == 'started'
-  become: true
-  file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}/config/
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: '0755'
-
-- name: Copy config {{appname}} config
-  when: appstate == 'started'
-  copy:
-    src: "templates/{{appname}}/config/"
-    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/
-    mode: '0644'
+- name: provision infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-provision
 
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:
     name: "{{appname}}"
+    hostname: "{{appname}}"
     image: "{{appconfig[appname].image}}"
-    state: "{{appstate}}"
-    recreate: "{{recreate}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     detach: true
-    user: "1000:1000"
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+    ports: "{{ appconfig[appname].ports | default(omit,true)}}"
+
     command: 
     env:
       GF_SERVER_DOMAIN: "{{ appname }}.{{ inventory_hostname }}"
@@ -56,16 +40,25 @@
       GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(realm_access.roles[*], 'o11y-admin') && 'Admin' || contains(realm_access.roles[*], 'o11y-editor') && 'Editor' || 'Viewer'"
       GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_STRICT: "true"
       GF_AUTH_GENERIC_OAUTH_GROUPS_ATTRIBUTE_PATH: "groups[*]"
-    ports:
+      GF_PATHS_DATA: "/data"
+      GF_PATHS_LOGS: "/data/logs"
+      GF_PATHS_PLUGINS: "/plugins"
+      # GF_FEATURE_TOGGLES_ENABLE: "publicDashboards ngalert accesscontrol panelTitleSearch tempoSearch tempoApmTable traceToMetrics recordedQueries"
+      # GF_INSTALL_PLUGINS: "grafana-k6-app,grafana-polystat-panel"
     labels: |
       {
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "3000",
+        "traefik.http.routers.{{appname}}.service": "{{appname}}",
         "traefik.http.routers.{{appname}}.entrypoints": "https",
-        "traefik.http.routers.{{appname}}.tls": "true"
+        "traefik.http.routers.{{appname}}.tls": "true",
+        "traefik.http.routers.{{appname}}.rule": "Host(`{{appname}}.{{inventory_hostname}}`)",
       }
     volumes:
-      - /home/{{ansible_user}}/apps/grafana/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/grafana-datasources.yml:ro
-      - /home/{{ansible_user}}/apps/grafana/config/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/grafana-datasources.yml:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/plugins:/plugins:ro
       - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/data/:/data:rw
     networks_cli_compatible: yes
     network_mode: primenet
     networks:
@@ -73,7 +66,7 @@
         ipv4_address: "{{appconfig[appname].ip}}"
 
 - name: Check if server is up
-  when: appstate == 'started'
+  when:  appconfig[appname].appstate == 'started'
   uri:
     url: "https://{{appname}}.{{inventory_hostname}}/api/health"
     method: GET
@@ -84,7 +77,7 @@
   delay: 2
 
 - name: Reset password
-  when: appstate == 'started'
+  when:  appconfig[appname].appstate == 'started'
   ignore_errors: true
   uri:
     url: "https://{{appname}}.{{inventory_hostname}}/api/user/password"
@@ -104,7 +97,7 @@
 
 
 - name: Create team
-  when: appstate == 'started'
+  when:  appconfig[appname].appstate == 'started'
   ignore_errors: true
   uri:
     url: "https://{{appname}}.{{inventory_hostname}}/api/teams"
@@ -125,3 +118,8 @@
       name: egypt
     - id: 2
       name: greece
+
+- name: delete infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-delete

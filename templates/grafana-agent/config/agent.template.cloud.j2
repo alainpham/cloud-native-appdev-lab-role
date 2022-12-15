@@ -1,0 +1,21 @@
+server:
+  log_level: info
+
+metrics:
+  wal_directory: /grafana/wal
+  global:
+    scrape_interval: 15s
+    remote_write:
+    - url: "{{ secretappconfig['grafana-agent'].metrics.url }}"
+      basic_auth:
+        username: "{{ secretappconfig['grafana-agent'].metrics.user }}"
+        password: "{{ secretappconfig['grafana-agent'].metrics.pwd }}"
+  configs:
+    - name: allsystems
+{% filter indent(width=6) %}
+      {% include 'scrape_configs.yml' %}
+{% endfilter %}
+
+# integrations:
+#   agent:
+#     enabled: true
