@@ -8,7 +8,7 @@
     tasks_from: infra-provision
 
 - name: Template {{appname}} config
-  when: appstate == 'started'
+  when:  appconfig[appname].appstate == 'started'
   become: true
   ansible.builtin.template:
     src: templates/{{appname}}/config/traefik.ansible.template.yml
@@ -18,7 +18,7 @@
     mode: '0644'
 
 - name: Template {{appname}} tls
-  when: appstate == 'started'
+  when:  appconfig[appname].appstate == 'started'
   become: true
   ansible.builtin.template:
     src: templates/{{appname}}/config/tls.ansible.template.j2
