@@ -8,7 +8,7 @@
     tasks_from: infra-provision
 
 - name: Template {{appname}} config
-  when: appstate == 'started'
+  when:  appconfig[appname].appstate == 'started'
   ansible.builtin.template:
     src: templates/{{appname}}/config/prometheus.template.j2
     dest: /home/{{ ansible_user }}/apps/{{appname}}/config/prometheus.yml
