@@ -7,6 +7,16 @@
     name: cloud-native-appdev-lab-role
     tasks_from: infra-provision
 
+- name: Template {{appname}} config
+  when:  appconfig[appname].appstate == 'started'
+  become: true
+  ansible.builtin.template:
+    src: templates/{{appname}}/config/grafana-datasources-template.j2
+    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/grafana-datasources.yml
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+    mode: '0644'
+
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:
     name: "{{appname}}"

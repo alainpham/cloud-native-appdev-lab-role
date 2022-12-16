@@ -425,6 +425,7 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
 
+    prom_url: http://mimir:9090/prometheus
   loki: 
     ip: 172.18.0.72
     image: grafana/loki:2.7.0
@@ -456,6 +457,7 @@ appconfig:
     data_folder: "{{ data_folder_default }}"
     ports: 
 
+    prom_url: http://mimir:9090/prometheus
 
   grafana-agent:
     ip: 172.18.0.75
@@ -484,6 +486,8 @@ appconfig:
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
     ports: 
+
+    prom_url: http://mimir:9090/prometheus
 
   cadvisor: 
     ip: 172.18.0.77
