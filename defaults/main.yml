@@ -1,5 +1,6 @@
 ---
 docker:
+  pullregistry: registry.awon.lan
   registries:
     - registry.work.lan
     - registry.awon.lan
@@ -525,11 +526,6 @@ appconfig:
     config_folder: "{{ config_folder_default }}"
     data_folder: "{{ data_folder_default }}"
     ports: 
-
-# states can absent present stopped started
-appstate: started
-recreate: false
-purge: false
 
 
 # Example of sensible data config. Should be written in private repo

@@ -7,6 +7,7 @@
     name: cloud-native-appdev-lab-role
     tasks_from: infra-provision
 
+
 - name: "Manage {{appname}} container state - {{appconfig[appname].appstate}}"
   docker_container:
     name: "{{appname}}"
