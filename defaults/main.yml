@@ -544,7 +544,8 @@ secretappconfig:
 
 # Example of CICD built apps
 apps: 
-  - artifactId: rentman
+  rentman: 
+    artifactId: rentman
     groupId: com.itteddy
     cleanStart: true
     repo: git@github.com:itteddy/rentman.git
@@ -561,7 +562,9 @@ apps:
       - linux-arm-v7
     registries: 
       - registry.awon.lan
-  - artifactId: teddycast
+  
+  teddycast:
+    artifactId: teddycast
     groupId: com.itteddy
     cleanStart: true
     repo: git@github.com:itteddy/teddycast.git

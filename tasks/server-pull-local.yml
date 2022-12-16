@@ -2,6 +2,13 @@
 - set_fact:
     appname: "{{ rolesvar }}"
 
-- name: debug pulling
-  shell: | 
-    docker pull {{ docker.pullregistry }}/{{ appconfig[appname].image | regex_replace('.*/(.*)','\\1')  }}
+- set_fact:
+    imagetag: "{{ docker.pullregistry }}/{{ appconfig[appname].image | regex_replace('.*/(.*)','\\1')  }}"
+
+- name: debug
+  debug:
+    msg: "{{ imagetag }}"
+
+- name: pulling
+  shell: |
+    docker pull {{ imagetag }}

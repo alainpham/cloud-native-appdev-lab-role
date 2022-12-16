@@ -1,73 +1,76 @@
 
 ---
-- name: Create {{appname}} folders
-  file:
-    path: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/
-    state: absent
-  loop: "{{apps}}"
+- set_fact:
+    application: "{{ apps[rolesvar] }}"
 
 - name: Create {{appname}} folders
   file:
-    path: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/
+    path: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/
+    state: absent
+  
+
+- name: Create {{appname}} folders
+  file:
+    path: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/
     state: directory
-  loop: "{{apps}}"
+  
 
 - name: git clone
   git: 
-    repo: "{{item.repo}}"
-    dest: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/
-    version: "{{item.buildVersion}}"
-  loop: "{{apps}}"
+    repo: "{{application.repo}}"
+    dest: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/
+    version: "{{application.buildVersion}}"
+  
 
 
 - name: Make sure target folder exists
   file:
-    path: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/{{item.subfolder}}/target/
+    path: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/target/
     state: directory
-  loop: "{{apps}}"
+  
   
 - name: Download artifact
-  when: item.type == 'folder'
+  when: application.type == 'folder'
   ansible.builtin.get_url:
-    url: "{{ item.mavenrepo }}/{{ item.groupId | replace('.','/') }}/{{ item.artifactId }}/{{ item.buildVersion }}/{{ item.artifactId }}-{{ item.buildVersion }}.tar.gz"
-    dest: "/home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/{{item.subfolder}}/target/{{ item.artifactId }}-{{ item.buildVersion }}.tar.gz"
-  loop: "{{apps}}"
+    url: "{{ application.mavenrepo }}/{{ application.groupId | replace('.','/') }}/{{ application.artifactId }}/{{ application.buildVersion }}/{{ application.artifactId }}-{{ application.buildVersion }}.tar.gz"
+    dest: "/home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/target/{{ application.artifactId }}-{{ application.buildVersion }}.tar.gz"
+  
 
 - name: Unarchive artefacts
-  when: item.type == 'folder'
+  when: application.type == 'folder'
   ansible.builtin.unarchive:
-    src: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/{{item.subfolder}}/target/{{ item.artifactId }}-{{ item.buildVersion }}.tar.gz
-    dest: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/{{item.subfolder}}/target/
+    src: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/target/{{ application.artifactId }}-{{ application.buildVersion }}.tar.gz
+    dest: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/target/
     remote_src: yes
-  loop: "{{apps}}"
+  
 
 - name: build container image if tag does not exists locally or if its a snapshot
   shell: |
-    docker image inspect {{item.artifactId}}:{{item.buildVersion}}-{{arch}}
-    if [ $? -ne 0 ] || [[ {{item.buildVersion}} == *"SNAPSHOT"* ]]; then
-      docker build -f {{item.dockerfile}} \
-      --label "gitrepo={{item.repo}}" \
-      --label "dockerfile={{item.dockerfile}}" \
-      --label "buildVersion={{item.dockerfile}}" \
-      -t {{item.artifactId}}:{{item.buildVersion}}-{{arch}} .
+    docker image inspect {{application.artifactId}}:{{application.buildVersion}}-{{arch}}
+    if [ $? -ne 0 ] || [[ {{application.buildVersion}} == *"SNAPSHOT"* ]]; then
+      docker build -f {{application.dockerfile}} \
+      --label "gitrepo={{application.repo}}" \
+      --label "dockerfile={{application.dockerfile}}" \
+      --label "buildVersion={{application.dockerfile}}" \
+      -t {{application.artifactId}}:{{application.buildVersion}}-{{arch}} .
     else
       echo "CONTAINER_EXISTS_ALREADY"
     fi
   args:
-    chdir: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/{{item.subfolder}}/
-  loop: "{{apps}}"
+    chdir: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/
+  
   register: containerbuidresult
   changed_when: (containerbuidresult.stdout_lines | last) != 'CONTAINER_EXISTS_ALREADY'
 
 
 - name: tag container images for registries
   shell: | 
-    docker tag {{item.0.artifactId}}:{{item.0.buildVersion}}-{{arch}} {{item.1}}/{{item.0.artifactId}}:{{item.0.buildVersion}}-{{arch}}
+    docker tag {{application.0.artifactId}}:{{application.0.buildVersion}}-{{arch}} {{application.1}}/{{application.0.artifactId}}:{{application.0.buildVersion}}-{{arch}}
   loop: "{{ apps | subelements('registries') }}"
 
 - name: push container images to registries
   shell: | 
-    docker push {{item.1}}/{{item.0.artifactId}}:{{item.0.buildVersion}}-{{arch}}
+    docker push {{application.1}}/{{application.0.artifactId}}:{{application.0.buildVersion}}-{{arch}}
   loop: "{{ apps | subelements('registries') }}"
 
 # - name: print repos
