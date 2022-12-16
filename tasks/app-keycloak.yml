@@ -8,7 +8,7 @@
     tasks_from: infra-provision
 
 - name: Template {{appname}} config
-  when: appstate == 'started'
+  when:  appconfig[appname].appstate == 'started'
   become: true
   ansible.builtin.template:
     src: templates/{{appname}}/config/apps-realm-template.j2
