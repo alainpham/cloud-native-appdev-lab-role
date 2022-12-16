@@ -7,7 +7,7 @@
     name: cloud-native-appdev-lab-role
     tasks_from: infra-provision
 
-- name: "Manage artemis container state - {{appstate}} - {{ips.artemis}}"
+- name: "Manage {{appname}} container state - {{appconfig[appname].appstate}}"
   docker_container:
     name: "{{appname}}"
     hostname: "{{appname}}"
@@ -33,7 +33,7 @@
         "traefik.tcp.routers.{{appname}}.rule": "HostSNI(`{{appname}}.{{inventory_hostname}}`)",
         
         "traefik.http.services.{{appname}}-console.loadbalancer.server.port": "8161",
-        "traefik.http.routers.{{appname}}-console.service": "{{appname}}-console"
+        "traefik.http.routers.{{appname}}-console.service": "{{appname}}-console",
         "traefik.http.routers.{{appname}}-console.entrypoints": "http",
         "traefik.http.routers.{{appname}}-console.tls": "false",
         "traefik.http.routers.{{appname}}-console.rule": "Host(`{{appname}}-console.{{inventory_hostname}}`)",
