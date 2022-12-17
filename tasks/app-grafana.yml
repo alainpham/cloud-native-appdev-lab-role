@@ -40,6 +40,7 @@
     env:
       GF_SERVER_DOMAIN: "{{ appname }}.{{ inventory_hostname }}"
       GF_SERVER_ROOT_URL: "https://{{ appname }}.{{ inventory_hostname }}/"
+      GF_PLUGINS_ENABLE_ALPHA: "true"
       GF_AUTH_BASIC_ENABLED: "true"
       GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
       GF_AUTH_GENERIC_OAUTH_NAME: "Keycloak OIDC / OAuth 2.0"
@@ -63,8 +64,9 @@
         "traefik.http.routers.{{appname}}.tls": "true"
       }
     volumes:
-      - /home/{{ansible_user}}/apps/grafana/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/grafana-datasources.yml:ro
-      - /home/{{ansible_user}}/apps/grafana/config/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/grafana-datasources.yml:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/graphics:/usr/share/grafana/public/graphics:ro
       - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
     networks_cli_compatible: yes
     network_mode: primenet

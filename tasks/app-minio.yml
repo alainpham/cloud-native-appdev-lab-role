@@ -37,9 +37,16 @@
     ports:
     labels: |
       {
-        "traefik.http.services.{{appname}}.loadbalancer.server.port": "9001",
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "9000",
         "traefik.http.routers.{{appname}}.entrypoints": "https",
-        "traefik.http.routers.{{appname}}.tls": "true"
+        "traefik.http.routers.{{appname}}.tls": "true",
+        "traefik.http.routers.{{appname}}.service": "{{appname}}",
+
+        "traefik.http.services.{{appname}}-console.loadbalancer.server.port": "9001",
+        "traefik.http.routers.{{appname}}-console.entrypoints": "https",
+        "traefik.http.routers.{{appname}}-console.tls": "true",
+        "traefik.http.routers.{{appname}}-console.rule": "Host(`{{appname}}-console.{{inventory_hostname}}`)",
+        "traefik.http.routers.{{appname}}-console.service": "{{appname}}-console"
       }
     volumes:
       - "/home/{{ansible_user}}/apps/{{appname}}/data:/data:rw"

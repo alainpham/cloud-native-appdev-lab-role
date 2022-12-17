@@ -74,6 +74,7 @@
       - /home/{{ansible_user}}/apps/{{ appname }}/config/dashboards:/etc/grafana/provisioning/dashboards:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/rbac/rbac.yml:/etc/grafana/provisioning/access-control/rbac.yml:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/branding:/usr/share/grafana/public/branding:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/graphics:/usr/share/grafana/public/graphics:ro
       - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
     networks_cli_compatible: yes
     network_mode: primenet

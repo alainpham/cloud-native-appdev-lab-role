@@ -115,7 +115,7 @@ appconfig:
     image: prom/prometheus:v2.38.0
   grafana: 
     ip: 172.18.0.71
-    image: grafana/grafana:9.1.6
+    image: grafana/grafana:9.2.0
   loki: 
     ip: 172.18.0.72
     image: grafana/loki:2.6.1
@@ -124,7 +124,7 @@ appconfig:
     image: grafana/promtail:2.6.1
   grafana-enterprise: 
     ip: 172.18.0.74
-    image: grafana/grafana-enterprise:9.1.6
+    image: grafana/grafana-enterprise:9.2.0
   grafana-agent:
     ip: 172.18.0.75
     image: grafana/agent:v0.26.1
