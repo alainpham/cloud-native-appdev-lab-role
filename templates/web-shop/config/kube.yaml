@@ -1,3 +1,8 @@
+# Things to change before deployment
+# static server http://34.163.84.84
+# Grafana cloudn remote urls and key
+# Front end url grafana-agent-front-end-receiver
+
 ---
 kind: Namespace
 apiVersion: v1
@@ -621,128 +626,6 @@ spec:
             failureThreshold: 6
             successThreshold: 1
       volumes:
-
----
-#####################################
-############# squid #################
-#####################################
-kind: Secret
-apiVersion: v1
-metadata:
-  namespace: web-shop-app
-  labels:
-    app: squid
-  name: squid-config
-type: Opaque
-stringData: 
-  squid.conf: |
-    acl localnet src 0.0.0.1-0.255.255.255	# RFC 1122 "this" network (LAN)
-    acl localnet src 10.0.0.0/8		# RFC 1918 local private network (LAN)
-    acl localnet src 100.64.0.0/10		# RFC 6598 shared address space (CGN)
-    acl localnet src 169.254.0.0/16 	# RFC 3927 link-local (directly plugged) machines
-    acl localnet src 172.16.0.0/12		# RFC 1918 local private network (LAN)
-    acl localnet src 192.168.0.0/16		# RFC 1918 local private network (LAN)
-    acl localnet src 192.168.0.0/16		# RFC 1918 local private network (LAN)
-    acl localnet src 83.215.141.7/16	# mine
-    acl localnet src fc00::/7       	# RFC 4193 local private network range
-    acl localnet src fe80::/10      	# RFC 4291 link-local (directly plugged) machines
-    acl SSL_ports port 443
-    acl Safe_ports port 80		# http
-    acl Safe_ports port 21		# ftp
-    acl Safe_ports port 443		# https
-    acl Safe_ports port 70		# gopher
-    acl Safe_ports port 210		# wais
-    acl Safe_ports port 1025-65535	# unregistered ports
-    acl Safe_ports port 280		# http-mgmt
-    acl Safe_ports port 488		# gss-http
-    acl Safe_ports port 591		# filemaker
-    acl Safe_ports port 777		# multiling http
-    http_access deny !Safe_ports
-    http_access deny CONNECT !SSL_ports
-    http_access allow localhost manager
-    http_access deny manager
-    include /etc/squid/conf.d/*.conf
-    http_access allow localhost
-    http_access deny all
-    http_port 3128
-    coredump_dir /var/spool/squid
-    refresh_pattern ^ftp:		1440	20%	10080
-    refresh_pattern ^gopher:	1440	0%	1440
-    refresh_pattern -i (/cgi-bin/|\?) 0	0%	0
-    refresh_pattern \/(Packages|Sources)(|\.bz2|\.gz|\.xz)$ 0 0% 0 refresh-ims
-    refresh_pattern \/Release(|\.gpg)$ 0 0% 0 refresh-ims
-    refresh_pattern \/InRelease$ 0 0% 0 refresh-ims
-    refresh_pattern \/(Translation-.*)(|\.bz2|\.gz|\.xz)$ 0 0% 0 refresh-ims
-    refresh_pattern .		0	20%	4320
-    connect_timeout 5 seconds
-    read_timeout 5 seconds
-    write_timeout 5 seconds
----
-apiVersion: v1
-kind: Service
-metadata:
-  namespace: web-shop-app
-  labels:
-    app: squid
-  name: squid
-spec:
-  ports:
-    - name: "core"
-      port: 3128
-      targetPort: 3128
-  selector:
-    app: squid
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  namespace: web-shop-app
-  labels:
-    app: squid
-  name: squid
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: squid
-  template:
-    metadata:
-      labels:
-        app: squid
-    spec:
-      containers:
-        - name: squid
-          image: ubuntu/squid:5.2-22.04_beta
-          env:
-          command: 
-          ports:
-            - containerPort: 3128
-          volumeMounts:
-            - mountPath: /etc/squid/squid.conf
-              name: squid-config
-              subPath: squid.conf
-          livenessProbe:
-            tcpSocket:
-              port: 3128
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 6
-            successThreshold: 1
-          readinessProbe:
-            tcpSocket:
-              port: 3128
-            initialDelaySeconds: 3
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 6
-            successThreshold: 1
-      volumes:
-        - name: squid-config
-          secret:
-            secretName: squid-config
-
-
 ---
 #####################################
 ############# shopping-cart #########
@@ -932,7 +815,7 @@ spec:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: http://grafana-agent:4317
             - name: APP_AGENT_RECEIVER_ENDPOINT
-              value: http://grafana-agent-front-end-receiver
+              value: http://34.155.96.222
           command: 
           ports:
             - containerPort: 3389
@@ -956,262 +839,128 @@ spec:
             failureThreshold: 6
             successThreshold: 1
       volumes:
-# ---
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   namespace: web-shop-app
-#   labels:
-#     service: broker
-#   name: broker
-# spec:
-#   replicas: 1
-#   selector:
-#     matchLabels:
-#       service: broker
-#   template:
-#     metadata:
-#       labels:
-#         service: broker
-#     spec:
-#       containers:
-#         - env:
-#             - name: MARIADB_DATABASE
-#               value: webshop
-#             - name: MARIADB_ROOT_PASSWORD
-#               value: myrootpassword
-#           image: quay.io/strimzi/kafka:0.32.0-kafka-3.2.1
-#           name: mariadb
-#           ports:
-#             - containerPort: 3306
-#           resources: {}
-#       restartPolicy: Always
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   namespace: web-shop-app
-#   labels:
-#     service: broker
-#   name: broker
-# spec:
-#   ports:
-#     - name: "29092"
-#       port: 29092
-#       targetPort: 29092
-#     - name: "9101"
-#       port: 9101
-#       targetPort: 9101
-#   selector:
-#     service: broker
-# ---
 
+
+---
+
+
+
+#####################################
+############# squid #################
+#####################################
+# kind: Secret
+# apiVersion: v1
+# metadata:
+#   namespace: web-shop-app
+#   labels:
+#     app: squid
+#   name: squid-config
+# type: Opaque
+# stringData: 
+#   squid.conf: |
+#     acl localnet src 0.0.0.1-0.255.255.255	# RFC 1122 "this" network (LAN)
+#     acl localnet src 10.0.0.0/8		# RFC 1918 local private network (LAN)
+#     acl localnet src 100.64.0.0/10		# RFC 6598 shared address space (CGN)
+#     acl localnet src 169.254.0.0/16 	# RFC 3927 link-local (directly plugged) machines
+#     acl localnet src 172.16.0.0/12		# RFC 1918 local private network (LAN)
+#     acl localnet src 192.168.0.0/16		# RFC 1918 local private network (LAN)
+#     acl localnet src 192.168.0.0/16		# RFC 1918 local private network (LAN)
+#     acl localnet src 83.215.141.7/16	# mine
+#     acl localnet src fc00::/7       	# RFC 4193 local private network range
+#     acl localnet src fe80::/10      	# RFC 4291 link-local (directly plugged) machines
+#     acl SSL_ports port 443
+#     acl Safe_ports port 80		# http
+#     acl Safe_ports port 21		# ftp
+#     acl Safe_ports port 443		# https
+#     acl Safe_ports port 70		# gopher
+#     acl Safe_ports port 210		# wais
+#     acl Safe_ports port 1025-65535	# unregistered ports
+#     acl Safe_ports port 280		# http-mgmt
+#     acl Safe_ports port 488		# gss-http
+#     acl Safe_ports port 591		# filemaker
+#     acl Safe_ports port 777		# multiling http
+#     http_access deny !Safe_ports
+#     http_access deny CONNECT !SSL_ports
+#     http_access allow localhost manager
+#     http_access deny manager
+#     include /etc/squid/conf.d/*.conf
+#     http_access allow localhost
+#     http_access deny all
+#     http_port 3128
+#     coredump_dir /var/spool/squid
+#     refresh_pattern ^ftp:		1440	20%	10080
+#     refresh_pattern ^gopher:	1440	0%	1440
+#     refresh_pattern -i (/cgi-bin/|\?) 0	0%	0
+#     refresh_pattern \/(Packages|Sources)(|\.bz2|\.gz|\.xz)$ 0 0% 0 refresh-ims
+#     refresh_pattern \/Release(|\.gpg)$ 0 0% 0 refresh-ims
+#     refresh_pattern \/InRelease$ 0 0% 0 refresh-ims
+#     refresh_pattern \/(Translation-.*)(|\.bz2|\.gz|\.xz)$ 0 0% 0 refresh-ims
+#     refresh_pattern .		0	20%	4320
+#     connect_timeout 5 seconds
+#     read_timeout 5 seconds
+#     write_timeout 5 seconds
 # ---
 # apiVersion: v1
 # kind: Service
 # metadata:
 #   namespace: web-shop-app
 #   labels:
-#     service: mariadb
-#   name: mariadb
+#     app: squid
+#   name: squid
 # spec:
 #   ports:
-#     - name: "3306"
-#       port: 3306
-#       targetPort: 3306
+#     - name: "core"
+#       port: 3128
+#       targetPort: 3128
 #   selector:
-#     service: mariadb
-# status:
-#   loadBalancer: {}
+#     app: squid
 # ---
 # apiVersion: apps/v1
 # kind: Deployment
 # metadata:
 #   namespace: web-shop-app
 #   labels:
-#     service: mariadb
-#   name: mariadb
+#     app: squid
+#   name: squid
 # spec:
 #   replicas: 1
 #   selector:
 #     matchLabels:
-#       service: mariadb
-#   strategy: {}
+#       app: squid
 #   template:
 #     metadata:
 #       labels:
-#         service: mariadb
+#         app: squid
 #     spec:
 #       containers:
-#         - env:
-#             - name: MARIADB_DATABASE
-#               value: webshop
-#             - name: MARIADB_ROOT_PASSWORD
-#               value: myrootpassword
-#           image: mariadb:latest
-#           name: mariadb
+#         - name: squid
+#           image: ubuntu/squid:5.2-22.04_beta
+#           env:
+#           command: 
 #           ports:
-#             - containerPort: 3306
-#           resources: {}
-#       restartPolicy: Always
-# status: {}
-# ---
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   namespace: web-shop-app
-#   labels:
-#     service: shopping-cart
-#   name: shopping-cart
-# spec:
-#   ports:
-#     - name: "5555"
-#       port: 5555
-#       targetPort: 5555
-#   selector:
-#     service: shopping-cart
-# status:
-#   loadBalancer: {}
-# ---
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   namespace: web-shop-app
-#   labels:
-#     service: shopping-cart
-#   name: shopping-cart
-# spec:
-#   replicas: 2
-#   selector:
-#     matchLabels:
-#       service: shopping-cart
-#   strategy: {}
-#   template:
-#     metadata:
-#       labels:
-#         service: shopping-cart
-#     spec:
-#       containers:
-#         - env:
-#             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-#               value: http://grafana-agent-traces.grafana:4317
-#             - name: SQLALCHEMY_DATABASE_URI
-#               value: mariadb+mariadbconnector://root:myrootpassword@mariadb:3306/webshop
-#           image: condla/shopping-cart:1.2
-#           name: shopping-cart
-          
-#           ports:
-#             - containerPort: 5555
-#           resources: {}
-#       restartPolicy: Always
-# status: {}
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   annotations:
-#     prometheus.io/scrape: "true"
-#     prometheus.io/path: "/actuator/prometheus"
-#   namespace: web-shop-app
-#   labels:
-#     service: products
-#   name: products
-# spec:
-#   ports:
-#     - name: "8080"
-#       port: 8080
-#       targetPort: 8080
-#   selector:
-#     service: products
-# status:
-#   loadBalancer: {}
-# ---
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   namespace: web-shop-app
-#   labels:
-#     service: products
-#     environment: production
-#   name: products
-# spec:
-#   replicas: 2
-#   selector:
-#     matchLabels:
-#       service: products
-#   strategy:
-#     type: Recreate
-#   template:
-#     metadata:
-#       labels:
-#         service: products
-#         environment: production
-#     spec:
-#       containers:
-#         - env:
-#             - name: JAVA_OPTS
-#               value: -javaagent:/opentelemetry-javaagent.jar
-#             - name: OTEL_EXPORTER
-#               value: otlp_span
-#             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-#               value: http://grafana-agent-traces.grafana:4317
-#             - name: OTEL_METRICS_EXPORTER
-#               value: none
-#             - name: OTEL_RESOURCE_ATTRIBUTES
-#               value: service.name=products,team.name=backend,environment=production
-#           image: condla/products:otel-1.2
-#           name: products
-#           ports:
-#             - containerPort: 8080
-#           resources: {}
-#       restartPolicy: Always
-# status: {}
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   namespace: web-shop-app
-#   labels:
-#     service: web-shop
-#   name: web-shop
-# spec:
-#   ports:
-#     - name: "6666"
-#       port: 3389
-#       targetPort: 6666
-#   selector:
-#     service: web-shop
-#   type: LoadBalancer
-# status:
-#   loadBalancer: {}
-# ---
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   namespace: web-shop-app
-#   labels:
-#     service: web-shop
-#   name: web-shop
-# spec:
-#   replicas: 2
-#   selector:
-#     matchLabels:
-#       service: web-shop
-#   strategy: {}
-#   template:
-#     metadata:
-#       labels:
-#         service: web-shop
-#     spec:
-#       containers:
-#         - env:
-#             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-#               value: http://grafana-agent-traces.grafana:4317
-#           image: condla/web-shop:1.3
-#           name: web-shop
-#           ports:
-#             - containerPort: 6666
-#           resources: {}
-#       restartPolicy: Always
-# status: {}
+#             - containerPort: 3128
+#           volumeMounts:
+#             - mountPath: /etc/squid/squid.conf
+#               name: squid-config
+#               subPath: squid.conf
+#           livenessProbe:
+#             tcpSocket:
+#               port: 3128
+#             initialDelaySeconds: 5
+#             periodSeconds: 10
+#             timeoutSeconds: 5
+#             failureThreshold: 6
+#             successThreshold: 1
+#           readinessProbe:
+#             tcpSocket:
+#               port: 3128
+#             initialDelaySeconds: 3
+#             periodSeconds: 10
+#             timeoutSeconds: 5
+#             failureThreshold: 6
+#             successThreshold: 1
+#       volumes:
+#         - name: squid-config
+#           secret:
+#             secretName: squid-config
+
