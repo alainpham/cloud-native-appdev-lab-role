@@ -1,85 +1,88 @@
+- set_fact:
+    application: "{{ apps[rolesvar] }}"
+
 - name: Create {{appname}} folders
-  when: item.cleanStart
+  when: application.cleanStart
   file:
-    path: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/
+    path: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/
     state: absent
-  loop: "{{apps}}"
+  
 
 - name: Create {{appname}} folders
   file:
-    path: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/
+    path: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/
     state: directory
-  loop: "{{apps}}"
+  
 
 - name: git clone
   git: 
-    repo: "{{item.repo}}"
-    dest: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/
-    version: "{{item.version}}"
-  loop: "{{apps}}"
+    repo: "{{application.repo}}"
+    dest: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/
+    version: "{{application.version}}"
+  
 
 - name: create branch for version
-  when: '"SNAPSHOT" not in item.buildVersion'
+  when: '"SNAPSHOT" not in application.buildVersion'
   shell: |
-    git checkout {{item.buildVersion}} || git checkout -b {{item.buildVersion}}
+    git checkout {{application.buildVersion}} || git checkout -b {{application.buildVersion}}
   args:
-    chdir: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/{{item.subfolder}}/
-  loop: "{{apps}}"
+    chdir: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/
+  
 
 - name: set version
   shell: |
-    mvn versions:set -DgenerateBackupPoms=false -DnewVersion={{item.buildVersion}}
+    mvn versions:set -DgenerateBackupPoms=false -DnewVersion={{application.buildVersion}}
   args:
-    chdir: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/{{item.subfolder}}/
-  loop: "{{apps}}"
+    chdir: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/
+  
 
 - name: maven package
   shell: |
     mvn package -DskipTests
   args:
-    chdir: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/{{item.subfolder}}/
-  loop: "{{apps}}"
+    chdir: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/
+  
 
 - name: package folder
-  when: item.type == 'folder'
+  when: application.type == 'folder'
   community.general.archive:
-    path: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/{{item.subfolder}}/{{ item.artifact }}
-    dest: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/{{item.subfolder}}/target/{{item.artifactId}}-{{ item.buildVersion }}.tar.gz
-  loop: "{{apps}}"
+    path: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/{{ application.artifact }}
+    dest: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/target/{{application.artifactId}}-{{ application.buildVersion }}.tar.gz
+  
 
 - name: maven deploy on central repo
-  when: item.type == 'folder'
+  when: application.type == 'folder'
   shell: |
     mvn deploy:deploy-file \
-      -DgroupId={{ item.groupId }} \
-      -DartifactId={{ item.artifactId }} \
-      -Dversion={{ item.buildVersion }} \
+      -DgroupId={{ application.groupId }} \
+      -DartifactId={{ application.artifactId }} \
+      -Dversion={{ application.buildVersion }} \
       -Dpackaging=tar.gz \
-      -Durl={{ item.mavenrepo }} \
-      -Dfile=/home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/{{item.subfolder}}/target/{{item.artifactId}}-{{ item.buildVersion }}.tar.gz
-  loop: "{{apps}}"
+      -Durl={{ application.mavenrepo }} \
+      -Dfile=/home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/target/{{application.artifactId}}-{{ application.buildVersion }}.tar.gz
+  
 
 - name: commit new version
-  when: '"SNAPSHOT" not in item.buildVersion'
+  when: '"SNAPSHOT" not in application.buildVersion'
   shell: |
     if [ -z "$(git status --porcelain)" ]; then 
       echo "NOTHING_TO_COMMIT"
     else 
       # Uncommitted changes
-      git commit -a -m "new branch for {{item.buildVersion}}"
+      git commit -a -m "new branch for {{application.buildVersion}}"
     fi
   args:
-    chdir: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/{{item.subfolder}}/
-  loop: "{{apps}}"
+    chdir: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/
+  
   register: result
   changed_when: result.stdout != 'NOTHING_TO_COMMIT'
 
 - name: push branch
-  when: '"SNAPSHOT" not in item.buildVersion'
-  shell: git push origin {{item.buildVersion}}
+  when: '"SNAPSHOT" not in application.buildVersion'
+  shell: git push origin {{application.buildVersion}}
   args:
-    chdir: /home/{{ ansible_user }}/sources/{{item.groupId}}/{{item.artifactId}}/{{item.subfolder}}/
-  loop: "{{apps}}"
+    chdir: /home/{{ ansible_user }}/sources/{{application.groupId}}/{{application.artifactId}}/{{application.subfolder}}/
+  
   register: pushresult
   changed_when: 
     - pushresult.rc == 0
@@ -93,7 +96,7 @@
 
 # - name: print reg 
 #   debug: 
-#     msg: "{{item.1}}/{{item.0.artifactId}}:latest"
+#     msg: "{{application.1}}/{{application.0.artifactId}}:latest"
 #   with_subelements: 
 #     - "{{apps}}"
 #     - registries

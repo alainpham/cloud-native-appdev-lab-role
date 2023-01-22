@@ -1,0 +1,86 @@
+server:
+  http_listen_port: 80
+  log_level: info
+
+distributor:
+  receivers:
+    jaeger:
+      protocols:
+        thrift_http:
+        grpc:
+        thrift_binary:
+        thrift_compact:
+    otlp:
+      protocols:
+        http:
+        grpc:
+
+ingester:
+  trace_idle_period: 10s
+  max_block_bytes: 1_000_000
+  max_block_duration: 5m
+
+compactor:
+  compaction:
+     compaction_window: 1h
+     max_block_bytes: 100_000_000
+     block_retention: 1h
+     compacted_block_retention: 10m
+
+storage:
+  trace:
+    backend: local
+    block:
+      bloom_filter_false_positive: .05
+      index_downsample_bytes: 1000
+      encoding: zstd
+    wal:
+      path: /data/tempo/wal
+      encoding: none
+    local:
+      path: /data/tempo/blocks
+    pool:
+      max_workers: 100
+      queue_depth: 10000
+search_enabled: true
+metrics_generator_enabled: true
+
+metrics_generator:
+  ring:
+    kvstore:
+      store: memberlist
+  processor:
+    service_graphs:
+      wait: 10s
+      max_items: 10000
+      workers: 10
+      dimensions:
+        - http.method
+        - http.target
+        - team.name
+    span_metrics:
+      dimensions:
+        - http.method
+        - http.target
+        - team.name
+  registry:
+    stale_duration: 5m
+
+  storage:
+    path: /data/data
+    wal:
+      truncate_frequency: 0h5m0s
+      max_wal_time: 900
+    remote_write:
+      - url: http://mimir:9090/api/v1/push 
+
+
+overrides:
+  metrics_generator_processors:
+    - span-metrics
+    - service-graphs
+  max_traces_per_user: 100000
+  max_search_bytes_per_trace: 50000
+
+multitenancy_enabled: false
+

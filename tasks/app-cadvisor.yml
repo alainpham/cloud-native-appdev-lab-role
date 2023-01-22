@@ -2,41 +2,33 @@
 - set_fact:
     appname: cadvisor
 
-- name: purge {{appname}} folders
-  when: purge
-  become: true
-  file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}
-    state: absent
-
-- name: Create {{appname}} folders
-  when: appstate == 'started'
-  become: true
-  file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}/data
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: '0755'
-
+- name: provision infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-provision
 
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:
     name: "{{appname}}"
+    hostname: "{{appname}}"
     image: "{{appconfig[appname].image}}"
-    state: "{{appstate}}"
-    recreate: "{{recreate}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     detach: true
-    # user: "1000:1000"
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+    ports: "{{ appconfig[appname].ports | default(omit,true)}}"
+
     command: 
     env:
-    ports:
     labels: |
       {
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "8080",
+        "traefik.http.routers.{{appname}}.service": "{{appname}}",
         "traefik.http.routers.{{appname}}.entrypoints": "https",
         "traefik.http.routers.{{appname}}.tls": "true",
+        "traefik.http.routers.{{appname}}.rule": "Host(`{{appname}}.{{inventory_hostname}}`)",
       }
     volumes:
       - "/:/rootfs:ro"
@@ -48,3 +40,8 @@
     networks:
       - name: primenet
         ipv4_address: "{{appconfig[appname].ip}}"
+
+- name: delete infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-delete

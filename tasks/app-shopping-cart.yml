@@ -1,0 +1,50 @@
+---
+- set_fact:
+    appname: shopping-cart
+
+
+- name: provision infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-provision
+
+
+- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
+  docker_container:
+    name: "{{appname}}"
+    hostname: "{{appname}}"
+    image: "{{appconfig[appname].image}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    detach: true
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+    ports: "{{ appconfig[appname].ports | default(omit,true)}}"
+    command: 
+    env:
+      SQLALCHEMY_DATABASE_URI: mariadb+mariadbconnector://root:myrootpassword@mariadb:3306/webshop
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://grafana-agent:4317
+    labels: |
+      {
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "5555",
+        "traefik.http.routers.{{appname}}.service": "{{appname}}",
+        "traefik.http.routers.{{appname}}.entrypoints": "http",
+        "traefik.http.routers.{{appname}}.tls": "false",
+        "traefik.http.routers.{{appname}}.rule": "Host(`{{appname}}.{{inventory_hostname}}`)",
+      }
+    volumes:
+    networks_cli_compatible: yes
+    network_mode: primenet
+    networks:
+      - name: primenet
+        ipv4_address: "{{appconfig[appname].ip}}"
+    log_driver: loki
+    log_options:
+      loki-url: "http://{{appconfig.loki.ip}}/loki/api/v1/push"
+      loki-external-labels: "service={{ '{{' }}.Name{{ '}}' }}"
+
+- name: delete infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-delete

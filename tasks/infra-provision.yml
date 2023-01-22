@@ -1,0 +1,40 @@
+---
+- name: Create {{appname}} config folder
+  when: appconfig[appname].appstate == 'started'
+  become: true
+  file:
+    path: "{{ appconfig[appname].config_folder }}"
+    state: directory
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+    mode: '0755'
+
+- name: Copy config {{appname}}
+  when: appconfig[appname].appstate == 'started'
+  become: true
+  copy:
+    src: "templates/{{appname}}/config/"
+    dest: "{{ appconfig[appname].config_folder }}"
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+    mode: '0644'
+
+- name: Create {{appname}} data folder
+  when: appconfig[appname].appstate == 'started'
+  become: true
+  file:
+    path: "{{ appconfig[appname].data_folder }}"
+    state: directory
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
+    mode: '0755'
+
+
+- name: add to /etc/hosts
+  become: true
+  when : appconfig[appname].appstate == 'started' and appconfig[appname].declare_hostname
+  lineinfile:
+    dest: /etc/hosts
+    regexp: '^.*{{appconfig[appname].ip}}\s.*$'
+    line: "{{appconfig[appname].ip}} {{appname}}"
+    state: present

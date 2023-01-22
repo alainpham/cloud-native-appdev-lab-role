@@ -2,51 +2,53 @@
 - set_fact:
     appname: minio
 
-- name: purge {{appname}} folders
-  when: purge
-  become: true
-  file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}
-    state: absent
+- set_fact:
+    minio_buckets:
+      - /data/gem-tsdb
+      - /data/gem-ruler 
+      - /data/gem-admin
+      - /data/gel-admin
+      - /data/gel-chunks
+      - /data/mimir-tsdb 
+      - /data/mimir-ruler 
+      - /data/sandbox
 
-- name: Create {{appname}} folders
-  when: appstate == 'started'
-  become: true
-  file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}/data
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: '0755'
-
+- name: provision infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-provision
 
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:
     name: "{{appname}}"
+    hostname: "{{appname}}"
     image: "{{appconfig[appname].image}}"
-    state: "{{appstate}}"
-    recreate: "{{recreate}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     detach: true
-    user: "1000:1000"
-    command: server /data --console-address ":9001"
-    env:
-      MINIO_ACCESS_KEY: admin
-      MINIO_SECRET_KEY: password
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
     ports:
+    command: "sh -c 'mkdir -p {{ minio_buckets | join(' ') }} && minio server /data --console-address :9001'"
+    env:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password
+    entrypoint: [""]
     labels: |
       {
         "traefik.http.services.{{appname}}.loadbalancer.server.port": "9000",
+        "traefik.http.routers.{{appname}}.service": "{{appname}}",
         "traefik.http.routers.{{appname}}.entrypoints": "https",
         "traefik.http.routers.{{appname}}.tls": "true",
-        "traefik.http.routers.{{appname}}.service": "{{appname}}",
+        "traefik.http.routers.{{appname}}.rule": "Host(`{{appname}}.{{inventory_hostname}}`)",
+
 
         "traefik.http.services.{{appname}}-console.loadbalancer.server.port": "9001",
+        "traefik.http.routers.{{appname}}-console.service": "{{appname}}-console",
         "traefik.http.routers.{{appname}}-console.entrypoints": "https",
         "traefik.http.routers.{{appname}}-console.tls": "true",
         "traefik.http.routers.{{appname}}-console.rule": "Host(`{{appname}}-console.{{inventory_hostname}}`)",
-        "traefik.http.routers.{{appname}}-console.service": "{{appname}}-console"
       }
     volumes:
       - "/home/{{ansible_user}}/apps/{{appname}}/data:/data:rw"
@@ -56,3 +58,18 @@
       - name: primenet
         ipv4_address: "{{appconfig[appname].ip}}"
 
+- name: Check if server is up
+  when:  appconfig[appname].appstate == 'started'
+  uri:
+    url: "https://{{appname}}-console.{{inventory_hostname}}"
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 2
+
+- name: delete infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-delete

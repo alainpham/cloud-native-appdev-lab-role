@@ -1,0 +1,5 @@
+delete from product;
+INSERT INTO product (name, price, tag, pic_ref) VALUES ("Primacy", 111.32,"","http://static.work.lan/img/tires/primacy.webp"); 
+INSERT INTO product (name, price, tag, pic_ref) VALUES ("Starcross", 114,"","http://static.work.lan/img/tires/starcross.webp");
+INSERT INTO product (name, price, tag, pic_ref) VALUES ("Cross", 77.5,"","http://static.work.lan/img/tires/crossclimate.webp");
+INSERT INTO product (name, price, tag, pic_ref) VALUES ("Pilot", 93.5,"","http://static.work.lan/img/tires/pilot.webp");

@@ -1,0 +1,93 @@
+# config file version
+apiVersion: 1
+datasources:
+  - name: Prometheus-src
+    uid: grafanacloud-prom-src
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: http://prometheus:9090
+    version: 1
+    isDefault: false
+    editable: false
+
+  - name: Prometheus-Mimir
+    uid: grafanacloud-prom
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: {{ appconfig[appname].prom_url }}
+    version: 1
+    isDefault: true
+    editable: false
+    jsonData:
+      exemplarTraceIdDestinations:
+        - datasourceUid: grafanacloud-traces
+          name: traceId
+      httpMethod: POST
+
+  - name: Loki
+    uid: grafanacloud-logs
+    type: loki
+    access: proxy
+    url: http://loki
+    jsonData:
+      derivedFields:
+        - datasourceUid: grafanacloud-traces
+          matcherRegex: "^.*?trace_*[I|i][d|D]=(\\w+).*$"
+          name: traceId
+          url: '$${__value.raw}'
+
+  - name: Tempo
+    type: tempo
+    access: proxy
+    uid: grafanacloud-traces
+    url: http://tempo
+    jsonData:
+      nodeGraph:
+        enabled: true
+      tracesToLogs:
+        datasourceUid: grafanacloud-logs
+        filterByTraceID: false
+        spanEndTimeShift: "500ms"
+        spanStartTimeShift: "-500ms"
+        tags: ['service']
+        mappedTags: [{key: 'service.name', value: 'service'}]
+        mapTagNamesEnabled: true
+      serviceMap:
+        datasourceUid: grafanacloud-prom
+
+      tracesToMetrics:
+        datasourceUid: 'grafanacloud-prom'
+        tags: [{key: 'service.name', value: 'service_name'}]
+        queries:
+          - name: 'Requests Rate'
+            query: 'sum(rate(traces_spanmetrics_calls_total{$__tags}[1m]))'
+
+  - name: Postgres
+    uid: postgres
+    type: postgres
+    url: postgres:5432
+    database: db
+    user: admin
+    secureJsonData:
+      password: 'password'
+    jsonData:
+      sslmode: 'disable' 
+      maxOpenConns: 5 
+      maxIdleConns: 2
+      connMaxLifetime: 14400 
+      postgresVersion: 1200
+      timescaledb: false
+
+  - name: MySQL
+    type: mysql
+    url: mariadb:3306
+    database: webshop
+    user: root
+    jsonData:
+      maxOpenConns: 0
+      maxIdleConns: 2
+      connMaxLifetime: 14400
+    secureJsonData:
+      password: myrootpassword

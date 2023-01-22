@@ -2,40 +2,34 @@
 - set_fact:
     appname: grafana-enterprise
 
-- name: purge {{appname}} folders
-  when: purge
-  become: true
-  file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}
-    state: absent
+- name: provision infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-provision
 
-- name: Create {{appname}} folders
-  when: appstate == 'started'
+- name: Template {{appname}} config
+  when:  appconfig[appname].appstate == 'started'
   become: true
-  file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}/config/
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: '0755'
-
-- name: Copy config {{appname}} config
-  when: appstate == 'started'
-  copy:
-    src: "templates/grafana/config/"
-    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/
+  ansible.builtin.template:
+    src: templates/{{appname}}/config/grafana-datasources-template.j2
+    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/grafana-datasources.yml
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
     mode: '0644'
 
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:
     name: "{{appname}}"
+    hostname: "{{appname}}"
     image: "{{appconfig[appname].image}}"
-    state: "{{appstate}}"
-    recreate: "{{recreate}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     detach: true
-    user: "1000:1000"
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+    ports: "{{ appconfig[appname].ports | default(omit,true)}}"
+
     command: 
     env:
       GF_SERVER_DOMAIN: "{{ appname }}.{{ inventory_hostname }}"
@@ -59,23 +53,32 @@
       GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH: "contains(realm_access.roles[*], 'o11y-admin') && 'Admin' || contains(realm_access.roles[*], 'o11y-editor') && 'Editor' || contains(realm_access.roles[*], 'o11y-viewer') && 'Viewer'"
       GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_STRICT: "true"
       GF_AUTH_GENERIC_OAUTH_GROUPS_ATTRIBUTE_PATH: "groups[*]"
+      GF_PATHS_DATA: "/data"
+      GF_PATHS_LOGS: "/data/logs"
+      GF_PATHS_PLUGINS: "/plugins"
       GF_USERS_EDITORS_CAN_ADMIN: "true"
       GF_WHITE_LABELING_LOGIN_BACKGROUND: "url(public/branding/background.jpg)"
       GF_WHITE_LABELING_LOGIN_LOGO: "public/branding/logo.svg"
       GF_WHITE_LABELING_MENU_LOGO: "public/branding/logo.svg"
-    ports:
+      # GF_FEATURE_TOGGLES_ENABLE: "publicDashboards ngalert accesscontrol panelTitleSearch tempoSearch tempoApmTable traceToMetrics recordedQueries"
+      # GF_INSTALL_PLUGINS: "grafana-k6-app,grafana-polystat-panel"
     labels: |
       {
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "3000",
+        "traefik.http.routers.{{appname}}.service": "{{appname}}",
         "traefik.http.routers.{{appname}}.entrypoints": "https",
-        "traefik.http.routers.{{appname}}.tls": "true"
+        "traefik.http.routers.{{appname}}.tls": "true",
+        "traefik.http.routers.{{appname}}.rule": "Host(`{{appname}}.{{inventory_hostname}}`)",
       }
     volumes:
       - /home/{{ansible_user}}/apps/{{ appname }}/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/grafana-datasources.yml:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/plugins:/plugins:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/rbac/rbac.yml:/etc/grafana/provisioning/access-control/rbac.yml:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/branding:/usr/share/grafana/public/branding:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/graphics:/usr/share/grafana/public/graphics:ro
       - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
+      - /home/{{ansible_user}}/apps/{{appname}}/data/:/data:rw
     networks_cli_compatible: yes
     network_mode: primenet
     networks:
@@ -83,7 +86,7 @@
         ipv4_address: "{{appconfig[appname].ip}}"
 
 - name: Check if server is up
-  when: appstate == 'started'
+  when:  appconfig[appname].appstate == 'started'
   uri:
     url: "https://{{appname}}.{{inventory_hostname}}/api/health"
     method: GET
@@ -94,7 +97,7 @@
   delay: 2
 
 - name: Reset password
-  when: appstate == 'started'
+  when:  appconfig[appname].appstate == 'started'
   ignore_errors: true
   uri:
     url: "https://{{appname}}.{{inventory_hostname}}/api/user/password"
@@ -113,7 +116,7 @@
       accept: application/json
 
 - name: Create team
-  when: appstate == 'started'
+  when:  appconfig[appname].appstate == 'started'
   ignore_errors: true
   uri:
     url: "https://{{appname}}.{{inventory_hostname}}/api/teams"
@@ -136,7 +139,7 @@
       name: greece
 
 - name: Create team sync
-  when: appstate == 'started'
+  when:  appconfig[appname].appstate == 'started'
   ignore_errors: true
   uri:
     url: "https://{{appname}}.{{inventory_hostname}}/api/teams/{{ item.id }}/groups"
@@ -157,7 +160,7 @@
       name: greece
 
 - name: Create teamadmin team
-  when: appstate == 'started'
+  when:  appconfig[appname].appstate == 'started'
   ignore_errors: true
   uri:
     url: "https://{{appname}}.{{inventory_hostname}}/api/teams"
@@ -178,7 +181,7 @@
       name: teamadmin
 
 - name: Create team
-  when: appstate == 'started'
+  when:  appconfig[appname].appstate == 'started'
   ignore_errors: true
   uri:
     url: "https://{{appname}}.{{inventory_hostname}}/api/access-control/teams/{{ item.id }}/roles"

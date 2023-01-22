@@ -2,102 +2,87 @@
 - set_fact:
     appname: kafka
 
-- name: purge {{appname}} folders
-  when: purge
-  become: true
-  file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}
-    state: absent
+- name: provision infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-provision
 
 - name: Create {{appname}} folders
   when: appstate == 'started'
   become: true
   file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}/data
+    path: "{{ appconfig[appname].data_folder }}/zookeeper"
     state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
     mode: '0755'
 
 - name: Create {{appname}} folders
   when: appstate == 'started'
   become: true
   file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}/data/zookeeper
+    path: "{{ appconfig[appname].data_folder }}/broker"
     state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    owner: "{{ appconfig[appname].exec_as_user }}"
+    group: "{{ appconfig[appname].exec_as_group }}"
     mode: '0755'
 
-- name: Create {{appname}} folders
-  when: appstate == 'started'
-  become: true
-  file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}/data/broker
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: '0755'
-
-- name: Create {{appname}} folders
-  when: appstate == 'started'
-  become: true
-  file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}/config
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: '0755'
-
-- name: Copy config {{appname}} config
-  when: appstate == 'started'
-  copy:
-    src: "templates/{{appname}}/config/"
-    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/
-    mode: '0644'
 
 - name: "Manage zookeeper container state - {{appstate}} - {{appconfig.zookeeper.ip}}"
   docker_container:
     name: "zookeeper"
+    hostname: "zookeeper"
     image: "{{appconfig[appname].image}}"
-    state: "{{appstate}}"
-    recreate: "{{recreate}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     detach: true
-    user: "1000:1000"
-    command: bin/zookeeper-server-start.sh config/zookeeper.properties 
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+    ports: "{{ appconfig[appname].ports | default(omit,true)}}"
+
+    command: bin/zookeeper-server-start.sh /config/zookeeper.properties 
     env:
       LOG_DIR: /tmp/logs
-      KAFKA_OPTS: -javaagent:/opt/kafka/libs/jmx_prometheus_javaagent-0.17.0.jar=9779:/config/zookeeper-metrics-config.yml
-    ports:
+      KAFKA_OPTS: -javaagent:/opt/kafka/libs/jmx_prometheus_javaagent-0.17.2.jar=9779:/config/zookeeper-metrics-config.yml
     labels: |
       {
         "traefik.enable": "true",
         "traefik.http.services.zookeeper-metrics.loadbalancer.server.port": "9779",
+        "traefik.http.routers.zookeeper-metrics.service": "zookeeper-metrics",
         "traefik.http.routers.zookeeper-metrics.entrypoints": "http",
-        "traefik.http.routers.zookeeper-metrics.rule": "Host(`zookeeper-metrics.{{inventory_hostname}}`)",
         "traefik.http.routers.zookeeper-metrics.tls": "false",
+        "traefik.http.routers.zookeeper-metrics.rule": "Host(`zookeeper-metrics.{{inventory_hostname}}`)",
       }
     volumes:
       - "/home/{{ansible_user}}/apps/{{appname}}/data/zookeeper:/tmp/zookeeper:rw"
-      - "/home/{{ansible_user}}/apps/{{appname}}/config://config:ro"
+      - "/home/{{ansible_user}}/apps/{{appname}}/config:/config:ro"
     networks_cli_compatible: yes
     network_mode: primenet
     networks:
       - name: primenet
         ipv4_address: "{{appconfig.zookeeper.ip}}"
 
+- name: Check if zookeeper is up
+  shell: |
+    echo ruok | nc {{appconfig.zookeeper.ip}} 2181
+  register: nc_res
+  until: nc_res.stdout == 'imok'
+  retries: 60
+  delay: 2
+
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:
     name: "{{appname}}"
+    hostname: "{{appname}}"
     image: "{{appconfig[appname].image}}"
-    state: "{{appstate}}"
-    recreate: "{{recreate}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     detach: true
-    user: "1000:1000"
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+    ports:
     command: 
       - bin/kafka-server-start.sh config/server.properties 
       - --override listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093 
@@ -109,27 +94,27 @@
       - --override log.dirs=/kafka-data
     env:
       LOG_DIR: /tmp/logs
-      KAFKA_OPTS: -javaagent:/opt/kafka/libs/jmx_prometheus_javaagent-0.17.0.jar=9779:/config/kafka-metrics-config.yml
-    ports:
+      KAFKA_OPTS: -javaagent:/opt/kafka/libs/jmx_prometheus_javaagent-0.17.2.jar=9779:/config/kafka-metrics-config.yml
     labels: |
       {
         "traefik.enable": "true",
 
         "traefik.tcp.services.{{appname}}.loadbalancer.server.port": "9093",
+        "traefik.tcp.routers.{{appname}}.service": "{{appname}}",
         "traefik.tcp.routers.{{appname}}.entrypoints": "https",
         "traefik.tcp.routers.{{appname}}.tls": "true",
         "traefik.tcp.routers.{{appname}}.tls.passthrough": "true",
         "traefik.tcp.routers.{{appname}}.rule": "HostSNI(`{{appname}}.{{inventory_hostname}}`)",
-        "traefik.tcp.routers.{{appname}}.service": "{{appname}}",
 
         "traefik.http.services.kafka-metrics.loadbalancer.server.port": "9779",
+        "traefik.http.routers.kafka-metrics.service": "kafka-metrics",
         "traefik.http.routers.kafka-metrics.entrypoints": "http",
-        "traefik.http.routers.kafka-metrics.rule": "Host(`kafka-metrics.{{inventory_hostname}}`)",
         "traefik.http.routers.kafka-metrics.tls": "false",
+        "traefik.http.routers.kafka-metrics.rule": "Host(`kafka-metrics.{{inventory_hostname}}`)",
       }
     volumes:
       - "/home/{{ansible_user}}/apps/{{appname}}/data/broker:/kafka-data:rw"
-      - "/home/{{ansible_user}}/apps/{{appname}}/config://config:ro"
+      - "/home/{{ansible_user}}/apps/{{appname}}/config:/config:ro"
       - "/home/{{ansible_user}}/apps/tls:/certs:ro"
     networks_cli_compatible: yes
     network_mode: primenet
@@ -137,54 +122,37 @@
       - name: primenet
         ipv4_address: "{{appconfig[appname].ip}}"
 
-
-- name: "Manage kafdrop container state - {{appstate}} - {{appconfig.kafkdrop.ip}}"
-  docker_container:
-    name: "kafdrop"
-    image: "{{appconfig.kafdrop.image}}"
-    state: "{{appstate}}"
-    recreate: "{{recreate}}"
-    restart_policy: unless-stopped
-    container_default_behavior: no_defaults
-    detach: true
-    user: "1000:1000"
-    command:
-    env:
-      KAFKA_BROKERCONNECT: "{{appconfig[appname].ip}}:9092"
-      JVM_OPTS: -Xms32M -Xmx128M
-      SERVER_SERVLET_CONTEXTPATH: "/"
-    ports:
-    labels: |
-      {
-        "traefik.http.services.kafdrop.loadbalancer.server.port": "9000",
-        "traefik.http.routers.kafdrop.entrypoints": "https",
-        "traefik.http.routers.kafdrop.tls": "true",
-      }
-    volumes:
-    networks_cli_compatible: yes
-    network_mode: primenet
-    networks:
-      - name: primenet
-        ipv4_address: "{{appconfig.kafdrop.ip}}"
+- name: Check if {{appname}} is up
+  shell: |
+    echo dump | nc {{appconfig.zookeeper.ip}} 2181 | grep -i broker | xargs
+  register: nc_res
+  until: '"/brokers/ids/0" in nc_res.stdout'
+  retries: 60
+  delay: 2
 
 
 - name: "Manage kafkaexporter container state - {{appstate}} - {{appconfig.kafkaexporter.ip}}"
   docker_container:
     name: "kafkaexporter"
+    hostname: "kafkaexporter"
     image: "{{appconfig[appname].image}}"
-    state: "{{appstate}}"
-    recreate: "{{recreate}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     detach: true
-    user: "1000:1000"
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+    ports: "{{ appconfig[appname].ports | default(omit,true)}}"
+
     command: "/opt/kafka-exporter/kafka_exporter --kafka.server={{appconfig[appname].ip}}:9092"
     env:
     labels: |
       {
         "traefik.http.services.kafkaexporter.loadbalancer.server.port": "9308",
+        "traefik.http.routers.kafkaexporter.service": "kafkaexporter",
         "traefik.http.routers.kafkaexporter.entrypoints": "http",
         "traefik.http.routers.kafkaexporter.tls": "false",
+        "traefik.http.routers.kafkaexporter.rule": "Host(`kafkaexporter.{{inventory_hostname}}`)",
       }
     volumes:
     networks_cli_compatible: yes
@@ -193,27 +161,83 @@
       - name: primenet
         ipv4_address: "{{appconfig.kafkaexporter.ip}}"
 
+- name: Check if kafkaexporter is up
+  when:  appconfig[appname].appstate == 'started'
+  uri:
+    url: "http://kafkaexporter.{{inventory_hostname}}/metrics"
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 2
+
+- name: "Manage kafdrop container state - {{appstate}} - {{appconfig.kafkdrop.ip}}"
+  docker_container:
+    name: "kafdrop"
+    hostname: "kafdrop"
+    image: "{{appconfig.kafdrop.image}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    detach: true
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+    ports:
+    command:
+    env:
+      KAFKA_BROKERCONNECT: "{{appconfig[appname].ip}}:9092"
+      JVM_OPTS: -Xms32M -Xmx128M
+      SERVER_SERVLET_CONTEXTPATH: "/"
+    labels: |
+      {
+        "traefik.http.services.kafdrop.loadbalancer.server.port": "9000",
+        "traefik.http.routers.kafdrop.service": "kafdrop",
+        "traefik.http.routers.kafdrop.entrypoints": "https",
+        "traefik.http.routers.kafdrop.tls": "true",
+        "traefik.http.routers.kafdrop.rule": "Host(`kafdrop.{{inventory_hostname}}`)",
+      }
+    volumes:
+    networks_cli_compatible: yes
+    network_mode: primenet
+    networks:
+      - name: primenet
+        ipv4_address: "{{appconfig.kafdrop.ip}}"
+
+- name: Check if kafdrop is up
+  when:  appconfig[appname].appstate == 'started'
+  uri:
+    url: "https://kafdrop.{{inventory_hostname}}"
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 2
 
 - name: "Manage kafkaui container state - {{appstate}} - {{appconfig.kafkaui.ip}}"
   docker_container:
     name: "kafkaui"
+    hostname: "kafkaui"
     image: "{{appconfig.kafkaui.image}}"
-    state: "{{appstate}}"
-    recreate: "{{recreate}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     detach: true
-    user: "1000:1000"
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+    ports:
     command:
     env:
-      KAFKA_CLUSTERS_0_NAME: kafka.work.lan
+      KAFKA_CLUSTERS_0_NAME: kafka.{{inventory_hostname}}
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "{{appconfig[appname].ip}}:9092"
-    ports:
     labels: |
       {
         "traefik.http.services.kafkaui.loadbalancer.server.port": "8080",
+        "traefik.http.routers.kafkaui.service": "kafkaui",
         "traefik.http.routers.kafkaui.entrypoints": "https",
         "traefik.http.routers.kafkaui.tls": "true",
+        "traefik.http.routers.kafkaui.rule": "Host(`kafkaui.{{inventory_hostname}}`)",
       }
     volumes:
     networks_cli_compatible: yes
@@ -221,3 +245,19 @@
     networks:
       - name: primenet
         ipv4_address: "{{appconfig.kafkaui.ip}}"
+
+- name: Check if kafkaui is up
+  when:  appconfig[appname].appstate == 'started'
+  uri:
+    url: "https://kafkaui.{{inventory_hostname}}"
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 2
+
+- name: delete infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-delete

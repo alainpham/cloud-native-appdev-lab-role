@@ -1,0 +1,58 @@
+---
+- set_fact:
+    appname: static
+
+- name: provision infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-provision
+
+
+- name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
+  docker_container:
+    name: "{{appname}}"
+    hostname: "{{appname}}"
+    image: "{{appconfig[appname].image}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
+    restart_policy: unless-stopped
+    container_default_behavior: no_defaults
+    detach: true
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+    ports: "{{ appconfig[appname].ports | default(omit,true)}}"
+    command: 
+    env:
+    labels: |
+      {
+        "traefik.http.services.{{appname}}.loadbalancer.server.port": "8080",
+        "traefik.http.routers.{{appname}}.service": "{{appname}}",
+        "traefik.http.routers.{{appname}}.entrypoints": "http",
+        "traefik.http.routers.{{appname}}.tls": "false",
+        "traefik.http.routers.{{appname}}.rule": "Host(`{{appname}}.{{inventory_hostname}}`)",
+      }
+    volumes:
+      - /home/{{ ansible_user }}/apps/{{appname}}/config/:/srv:ro
+    networks_cli_compatible: yes
+    network_mode: primenet
+    networks:
+      - name: primenet
+        ipv4_address: "{{appconfig[appname].ip}}"
+    log_driver: loki
+    log_options:
+      loki-url: "http://{{appconfig.loki.ip}}/loki/api/v1/push"
+
+- name: Check if server is up
+  when:  appconfig[appname].appstate == 'started'
+  uri:
+    url: "http://{{appname}}.{{inventory_hostname}}"
+    method: GET
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 2
+
+- name: delete infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-delete
