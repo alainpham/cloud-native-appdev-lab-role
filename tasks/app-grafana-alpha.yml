@@ -54,7 +54,6 @@
       GF_PATHS_DATA: "/data"
       GF_PATHS_LOGS: "/data/logs"
       GF_PATHS_PLUGINS: "/plugins"
-    ports:
     labels: |
       {
         "traefik.http.services.{{appname}}.loadbalancer.server.port": "3000",
@@ -67,6 +66,7 @@
       - /home/{{ansible_user}}/apps/{{ appname }}/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/grafana-datasources.yml:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/dashboards:/etc/grafana/provisioning/dashboards:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/plugins:/plugins:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/graphics:/usr/share/grafana/public/graphics:ro
       - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/data/:/data:rw
     networks_cli_compatible: yes
@@ -118,16 +118,55 @@
     body: | 
       {
         "name": "{{ item.name }}",
-        "email": "{{ item.name }}@lab",
+        "email": "{{ item.name }}@lab.local",
         "orgId": 1
       }
     force_basic_auth: yes
     status_code: 200
   loop:
     - id: 1
-      name: egypt
+      name: teamadmin
     - id: 2
+      name: egypt
+    - id: 3
       name: greece
+    - id: 4
+      name: sre
+    - id: 5
+      name: frontend
+    - id: 6
+      name: backend
+
+
+- name: Create folder
+  when:  appconfig[appname].appstate == 'started'
+  ignore_errors: true
+  uri:
+    url: "https://{{appname}}.{{inventory_hostname}}/api/folders"
+    user: "admin"
+    password: "password"
+    method: POST
+    body_format: json
+    body: | 
+      {
+        "uid": "{{ item.name }}",
+        "title": "{{ item.name }}"
+      }
+    force_basic_auth: yes
+    status_code: 200
+  loop:
+    - id: 1
+      name: teamadmin
+    - id: 2
+      name: egypt
+    - id: 3
+      name: greece
+    - id: 4
+      name: sre
+    - id: 5
+      name: frontend
+    - id: 6
+      name: backend
 
 - name: delete infra
   ansible.builtin.include_role:

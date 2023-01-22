@@ -11,6 +11,6 @@ roles:
       - action: 'datasources:create'
       - action: 'datasources:write'
       - action: 'datasources.permissions:read'
-        scope: 'datasources:*'
+        scope: 'datasources:uid:*'
       - action: 'datasources.permissions:write'
-        scope: 'datasources:*'
+        scope: 'datasources:uid:*'

@@ -56,7 +56,7 @@
       GF_PATHS_DATA: "/data"
       GF_PATHS_LOGS: "/data/logs"
       GF_PATHS_PLUGINS: "/plugins"
-      GF_USERS_EDITORS_CAN_ADMIN: "true"
+      GF_USERS_EDITORS_CAN_ADMIN: "false"
       GF_WHITE_LABELING_LOGIN_BACKGROUND: "url(public/branding/background.jpg)"
       GF_WHITE_LABELING_LOGIN_LOGO: "public/branding/logo.svg"
       GF_WHITE_LABELING_MENU_LOGO: "public/branding/logo.svg"
@@ -74,11 +74,11 @@
       - /home/{{ansible_user}}/apps/{{ appname }}/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/grafana-datasources.yml:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/dashboards:/etc/grafana/provisioning/dashboards:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/plugins:/plugins:ro
-      - /home/{{ansible_user}}/apps/{{ appname }}/config/rbac/rbac.yml:/etc/grafana/provisioning/access-control/rbac.yml:ro
-      - /home/{{ansible_user}}/apps/{{ appname }}/config/branding:/usr/share/grafana/public/branding:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/graphics:/usr/share/grafana/public/graphics:ro
       - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
-      - /home/{{ansible_user}}/apps/{{appname}}/data/:/data:rw
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/rbac/rbac.yml:/etc/grafana/provisioning/access-control/rbac.yml:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/branding:/usr/share/grafana/public/branding:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/data/:/data:rw
     networks_cli_compatible: yes
     network_mode: primenet
     networks:
@@ -127,16 +127,93 @@
     body: | 
       {
         "name": "{{ item.name }}",
-        "email": "{{ item.name }}@lab",
+        "email": "{{ item.name }}@lab.local",
         "orgId": 1
       }
     force_basic_auth: yes
     status_code: 200
   loop:
     - id: 1
-      name: egypt
+      name: teamadmin
     - id: 2
+      name: egypt
+    - id: 3
       name: greece
+    - id: 4
+      name: sre
+    - id: 5
+      name: frontend
+    - id: 6
+      name: backend
+
+- name: Create folder
+  when:  appconfig[appname].appstate == 'started'
+  ignore_errors: true
+  uri:
+    url: "https://{{appname}}.{{inventory_hostname}}/api/folders"
+    user: "admin"
+    password: "password"
+    method: POST
+    body_format: json
+    body: | 
+      {
+        "uid": "{{ item.name }}",
+        "title": "{{ item.name }}"
+      }
+    force_basic_auth: yes
+    status_code: 200
+  loop:
+    - id: 1
+      name: teamadmin
+    - id: 2
+      name: egypt
+    - id: 3
+      name: greece
+    - id: 4
+      name: sre
+    - id: 5
+      name: frontend
+    - id: 6
+      name: backend
+
+- name: Create folder permissions
+  when:  appconfig[appname].appstate == 'started'
+  ignore_errors: true
+  uri:
+    url: "https://{{appname}}.{{inventory_hostname}}/api/folders/{{ item.name }}/permissions"
+    user: "admin"
+    password: "password"
+    method: POST
+    body_format: json
+    body: | 
+      {
+        "items": [
+          {
+            "teamId": {{ item.id }},
+            "permission": 1
+          },
+          {
+            "teamId": 4,
+            "permission": 1
+          }
+        ]
+      }
+    force_basic_auth: yes
+    status_code: 200
+  loop:
+    - id: 1
+      name: teamadmin
+    - id: 2
+      name: egypt
+    - id: 3
+      name: greece
+    - id: 4
+      name: sre
+    - id: 5
+      name: frontend
+    - id: 6
+      name: backend
+
 
 - name: Create team sync
   when:  appconfig[appname].appstate == 'started'
@@ -155,30 +232,18 @@
     status_code: 200
   loop:
     - id: 1
-      name: egypt
-    - id: 2
-      name: greece
-
-- name: Create teamadmin team
-  when:  appconfig[appname].appstate == 'started'
-  ignore_errors: true
-  uri:
-    url: "https://{{appname}}.{{inventory_hostname}}/api/teams"
-    user: "admin"
-    password: "password"
-    method: POST
-    body_format: json
-    body: | 
-      {
-        "name": "{{ item.name }}",
-        "email": "{{ item.name }}@lab",
-        "orgId": 1
-      }
-    force_basic_auth: yes
-    status_code: 200
-  loop:
-    - id: 3
       name: teamadmin
+    - id: 2
+      name: egypt
+    - id: 3
+      name: greece
+    - id: 4
+      name: sre
+    - id: 5
+      name: frontend
+    - id: 6
+      name: backend
+
 
 - name: Create team
   when:  appconfig[appname].appstate == 'started'
@@ -196,5 +261,11 @@
     force_basic_auth: yes
     status_code: 200
   loop:
-    - id: 3
+    - id: 1
       name: teamadmin
+
+
+- name: delete infra
+  ansible.builtin.include_role:
+    name: cloud-native-appdev-lab-role
+    tasks_from: infra-delete

@@ -30,6 +30,7 @@
       }
     volumes:
       - "/home/{{ansible_user}}/apps/{{appname}}/data:/var/lib/mysql:rw"
+      - "/home/{{ansible_user}}/apps/{{appname}}/config/:/docker-entrypoint-initdb.d/:ro"
     networks_cli_compatible: yes
     network_mode: primenet
     networks:

@@ -1,13 +1,17 @@
 ---
 - name: Delete {{appname}} config folder
-  when: appconfig[appname].appstate == 'absent' and appconfig[appname].purge == true
+  when: appconfig[appname].appstate == 'absent' and appconfig[appname].purge 
   become: true
   file:
     path: "{{ appconfig[appname].config_folder }}"
     state: absent
 
+# - name: debug vars
+#   debug:
+#     msg: "purge  : {{appconfig[appname].appstate}} {{appconfig[appname].purge }}"
+
 - name: Delete {{appname}} data folder
-  when: appconfig[appname].appstate == 'absent' and appconfig[appname].purge == true
+  when: appconfig[appname].appstate == 'absent' and appconfig[appname].purge 
   become: true
   file:
     path: "{{ appconfig[appname].data_folder }}"

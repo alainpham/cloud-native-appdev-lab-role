@@ -34,7 +34,7 @@ datasources:
     jsonData:
       derivedFields:
         - datasourceUid: grafanacloud-traces
-          matcherRegex: "^.*?trace_*[I|i][d|D]=(\\w+).*$"
+          matcherRegex: "traceID=(\\w+)"
           name: traceId
           url: '$${__value.raw}'
 
