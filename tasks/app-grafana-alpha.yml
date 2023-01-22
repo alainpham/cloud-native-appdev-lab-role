@@ -20,13 +20,16 @@
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:
     name: "{{appname}}"
+    hostname: "{{appname}}"
     image: "{{appconfig[appname].image}}"
-    state: "{{appstate}}"
-    recreate: "{{recreate}}"
+    state: "{{ appconfig[appname].appstate }}"
+    recreate: "{{ appconfig[appname].recreate }}"
     restart_policy: unless-stopped
     container_default_behavior: no_defaults
     detach: true
-    user: "1000:1000"
+    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+    ports: "{{ appconfig[appname].ports | default(omit,true)}}"
+
     command: 
     env:
       GF_SERVER_DOMAIN: "{{ appname }}.{{ inventory_hostname }}"
