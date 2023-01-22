@@ -1,6 +1,6 @@
 ---
 - set_fact:
-    appname: smoke-test
+    appname: smoke-test-app
 
 - name: provision infra
   ansible.builtin.include_role:

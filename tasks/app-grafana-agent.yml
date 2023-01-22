@@ -9,21 +9,12 @@
     tasks_from: infra-provision
 
 - name: Template {{appname}} config
-  when: appstate == 'started'
+  when:  appconfig[appname].appstate == 'started'
   ansible.builtin.template:
     src: templates/{{appname}}/config/agent.template.j2
-    dest: /home/{{ ansible_user }}/apps/{{appname}}/config/agent.yml
+    dest: "{{ appconfig[appname].config_folder }}/agent.yml"
     mode: '0644'
 
-- name: Create {{appname}} folders
-  when: appstate == 'started'
-  become: true
-  file:
-    path: /home/{{ ansible_user }}/apps/{{appname}}/data
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: '0755'
 
 - name: "Manage {{appname}} container state - {{appstate}} - {{appconfig[appname].ip}}"
   docker_container:

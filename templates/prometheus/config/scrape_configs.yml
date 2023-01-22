@@ -109,11 +109,16 @@ scrape_configs:
     static_configs:
       - targets:
           - "bqueue.{{ inventory_hostname }}"
-          - "smoke-test.{{ inventory_hostname }}"
+          - "smoke-test-app.{{ inventory_hostname }}"
 
   - job_name: "camelquarkus-dev"
     metrics_path: /q/metrics
     relabel_configs:
+      - source_labels: [__address__]
+        separator: ";"
+        regex: '(.+)\.(.+)\.(.+)'
+        target_label: application
+        replacement: $1
       - source_labels: [__address__]
         separator: ";"
         regex: '(.+)\.(.+)\.(.+)'
