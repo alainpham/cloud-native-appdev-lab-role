@@ -1,4 +1,4 @@
-user=ra
+user=ramses
 password=password
 rawtoken=$( curl -s \
     -d "client_id=grafana-enterprise.work.lan" \

@@ -34,6 +34,7 @@
     env:
       GF_SERVER_DOMAIN: "{{ appname }}.{{ inventory_hostname }}"
       GF_SERVER_ROOT_URL: "https://{{ appname }}.{{ inventory_hostname }}/"
+      GF_PLUGINS_ENABLE_ALPHA: "true"
       GF_AUTH_BASIC_ENABLED: "true"
       GF_AUTH_GENERIC_OAUTH_ENABLED: "true"
       GF_AUTH_GENERIC_OAUTH_NAME: "Keycloak OIDC / OAuth 2.0"
@@ -66,7 +67,11 @@
     volumes:
       - /home/{{ansible_user}}/apps/{{ appname }}/config/grafana-datasources.yml:/etc/grafana/provisioning/datasources/grafana-datasources.yml:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/dashboards:/etc/grafana/provisioning/dashboards:ro
+<<<<<<< HEAD
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/graphics:/usr/share/grafana/public/graphics:ro
+=======
       - /home/{{ansible_user}}/apps/{{ appname }}/config/plugins:/plugins:ro
+>>>>>>> 9cdf9c6b65512a6240b09591b1ee145f8df68c2a
       - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/data/:/data:rw
     networks_cli_compatible: yes

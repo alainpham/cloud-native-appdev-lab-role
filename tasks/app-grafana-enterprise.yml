@@ -76,6 +76,7 @@
       - /home/{{ansible_user}}/apps/{{ appname }}/config/plugins:/plugins:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/rbac/rbac.yml:/etc/grafana/provisioning/access-control/rbac.yml:ro
       - /home/{{ansible_user}}/apps/{{ appname }}/config/branding:/usr/share/grafana/public/branding:ro
+      - /home/{{ansible_user}}/apps/{{ appname }}/config/graphics:/usr/share/grafana/public/graphics:ro
       - /home/{{ansible_user}}/apps/tls/{{inventory_hostname}}-root-ca.pem:/etc/ssl/certs/ca-certificates.crt:ro
       - /home/{{ansible_user}}/apps/{{appname}}/data/:/data:rw
     networks_cli_compatible: yes
