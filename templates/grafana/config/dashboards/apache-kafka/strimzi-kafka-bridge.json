@@ -65,7 +65,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -186,7 +186,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -307,7 +307,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -430,7 +430,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -553,7 +553,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -676,7 +676,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -808,7 +808,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -904,7 +904,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1000,7 +1000,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1096,7 +1096,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1192,7 +1192,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1289,7 +1289,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1387,7 +1387,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1485,7 +1485,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1583,7 +1583,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1681,7 +1681,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1779,7 +1779,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1888,7 +1888,7 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -2001,7 +2001,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fieldConfig": {
         "defaults": {
           "custom": {}
@@ -2122,7 +2122,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -2220,7 +2220,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -2318,7 +2318,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fieldConfig": {
         "defaults": {
           "custom": {}
@@ -2413,7 +2413,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fieldConfig": {
         "defaults": {
           "custom": {}
@@ -2510,7 +2510,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fieldConfig": {
         "defaults": {
           "custom": {}
@@ -2607,7 +2607,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -2705,7 +2705,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -2804,7 +2804,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -2902,7 +2902,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "",
       "fieldConfig": {
         "defaults": {

@@ -11,7 +11,7 @@ datasources:
     isDefault: false
     editable: false
 
-  - name: Prometheus-Mimir
+  - name: Prometheus
     uid: grafanacloud-prom
     type: prometheus
     access: proxy
@@ -56,7 +56,6 @@ datasources:
         mapTagNamesEnabled: true
       serviceMap:
         datasourceUid: grafanacloud-prom
-
       tracesToMetrics:
         datasourceUid: 'grafanacloud-prom'
         tags: [{key: 'service.name', value: 'service_name'}]

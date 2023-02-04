@@ -70,7 +70,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#299c46"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "Quorum size of ZooKeeper ensemble",
       "format": "none",
       "gauge": {
@@ -151,7 +151,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "Number of active connections",
       "format": "none",
       "gauge": {
@@ -228,7 +228,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "Number of queued requests in the server. This goes up when the server receives more requests than it can process",
       "fill": 1,
       "gridPos": {
@@ -318,7 +318,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -398,7 +398,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "Number of watchers",
       "format": "none",
       "gauge": {
@@ -475,7 +475,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "ZooKeeper pods memory usage",
       "fill": 1,
       "gridPos": {
@@ -560,7 +560,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "Aggregated ZooKeeper pods CPU usage",
       "fill": 1,
       "gridPos": {
@@ -645,7 +645,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "Kafka broker pods disk usage",
       "fill": 1,
       "gridPos": {
@@ -730,7 +730,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "Open File Descriptors",
       "fill": 1,
       "gridPos": {
@@ -817,7 +817,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 1,
       "gridPos": {
         "h": 7,
@@ -901,7 +901,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 1,
       "gridPos": {
         "h": 7,
@@ -985,7 +985,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 1,
       "gridPos": {
         "h": 7,
@@ -1069,7 +1069,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "JVM thread count",
       "fill": 1,
       "gridPos": {
@@ -1155,7 +1155,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "Amount of time (in ms) it takes for the server to respond to a client request",
       "fill": 1,
       "gridPos": {
@@ -1240,7 +1240,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "Amount of time (in ms) it takes for the server to respond to a client request",
       "fill": 1,
       "gridPos": {
@@ -1325,7 +1325,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "Amount of time (in ms) it takes for the server to respond to a client request",
       "fill": 1,
       "gridPos": {
@@ -1419,7 +1419,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "Prometheus",
+        "datasource": "grafanacloud-prom",
         "hide": 0,
         "includeAll": false,
         "label": "Namespace",
@@ -1439,7 +1439,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "Prometheus",
+        "datasource": "grafanacloud-prom",
         "hide": 0,
         "includeAll": false,
         "label": "Cluster Name",
@@ -1459,7 +1459,7 @@
       {
         "allValue": ".*",
         "current": {},
-        "datasource": "Prometheus",
+        "datasource": "grafanacloud-prom",
         "hide": 0,
         "includeAll": true,
         "label": "Node",

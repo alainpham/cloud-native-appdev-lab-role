@@ -205,20 +205,53 @@ scrape_configs:
         replacement: kafka
       - target_label: strimzi_io_cluster
         replacement: kafka
+      - target_label: strimzi_io_kind
+        replacement: kafka
     static_configs:
       - targets:
           - "zookeeper-metrics.{{ inventory_hostname }}"
 
 # webshop
 
+  # - job_name: 'web-shop'
+  #   relabel_configs:
+  #     - source_labels: [__address__]
+  #       separator: ";"
+  #       regex: '(.+)\.(.+)\.(.+)'
+  #       target_label: application
+  #       replacement: $1
+  #     - source_labels: [__address__]
+  #       separator: ";"
+  #       regex: '(.+)\.(.+)\.(.+)'
+  #       target_label: application
+  #       replacement: $1
+  #     - source_labels: [__address__]
+  #       separator: ";"
+  #       regex: '(.+)\.(.+)\.(.+)'
+  #       target_label: node_name
+  #       replacement: $2
+  #     - source_labels: [__address__]
+  #       separator: ";"
+  #       regex: '(.+)\.(.+)\.(.+)'
+  #       target_label: kubernetes_pod_name
+  #       replacement: $1-$2
+  #     - target_label: namespace
+  #       replacement: camel
+  #   static_configs:
+  #     - targets:
+  #         - web-shop:6666
+  #         - shopping-cart:5555
+  #         - products:8080
+
   - job_name: 'web-shop'
     static_configs:
-      - targets: ['web-shop:6666']
+      - targets: ['web-shop:3389']
         labels:
           group: 'shop'
           service: 'web-shop'
           compose_service: web-shop
           compose_project: web-shop-o11y-demo
+          app: web-shop
 
   - job_name: 'shopping-cart'
     static_configs:
@@ -228,6 +261,7 @@ scrape_configs:
           service: 'shopping-cart'
           compose_service: shopping-cart
           compose_project: web-shop-o11y-demo
+          app: shopping-cart
 
   - job_name: 'products'
     metrics_path: /actuator/prometheus
@@ -238,6 +272,7 @@ scrape_configs:
           service: 'products'
           compose_service: products
           compose_project: web-shop-o11y-demo
+          app: products
 
   - job_name: 'span-metrics'
     static_configs:

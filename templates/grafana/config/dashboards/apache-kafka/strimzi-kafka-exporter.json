@@ -696,7 +696,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 0,
       "gridPos": {
         "h": 10,
@@ -787,7 +787,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 0,
       "gridPos": {
         "h": 10,
@@ -878,7 +878,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 0,
       "gridPos": {
         "h": 10,
@@ -1344,7 +1344,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "Prometheus",
+        "datasource": "grafanacloud-prom",
         "definition": "",
         "hide": 0,
         "includeAll": false,
@@ -1366,7 +1366,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "Prometheus",
+        "datasource": "grafanacloud-prom",
         "definition": "",
         "hide": 0,
         "includeAll": false,
@@ -1393,7 +1393,7 @@
             "$__all"
           ]
         },
-        "datasource": "Prometheus",
+        "datasource": "grafanacloud-prom",
         "definition": "label_values(kafka_consumergroup_current_offset{namespace=\"$kubernetes_namespace\",strimzi_io_cluster=\"$strimzi_cluster_name\"}, consumergroup)",
         "hide": 0,
         "includeAll": true,
@@ -1420,7 +1420,7 @@
             "$__all"
           ]
         },
-        "datasource": "Prometheus",
+        "datasource": "grafanacloud-prom",
         "definition": "label_values(kafka_topic_partition_current_offset{namespace=\"$kubernetes_namespace\",strimzi_io_cluster=\"$strimzi_cluster_name\"}, topic)",
         "hide": 0,
         "includeAll": true,

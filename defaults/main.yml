@@ -52,7 +52,7 @@ appconfig:
     image: 
   shopping-cart:
     ip: 172.18.0.21
-    image: condla/shopping-cart:1.2
+    image: alainpham/shopping-cart:1.3
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -66,7 +66,7 @@ appconfig:
 
   products:
     ip: 172.18.0.22
-    image: condla/products:otel-1.2
+    image: alainpham/products:otel-1.3
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -81,7 +81,7 @@ appconfig:
 
   web-shop:
     ip: 172.18.0.23
-    image: condla/web-shop:1.5
+    image: alainpham/web-shop:1.8
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -413,7 +413,7 @@ appconfig:
 
   grafana: 
     ip: 172.18.0.71
-    image: grafana/grafana:9.3.2
+    image: grafana/grafana:9.3.4
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -445,7 +445,7 @@ appconfig:
     image: grafana/promtail:2.7.1
   grafana-enterprise: 
     ip: 172.18.0.74
-    image: grafana/grafana-enterprise:9.3.2
+    image: grafana/grafana-enterprise:9.3.4
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"
@@ -461,7 +461,10 @@ appconfig:
 
   grafana-agent:
     ip: 172.18.0.75
-    image: grafana/agent:v0.30.2
+    # image: grafana/agent:v0.30.2 
+
+    #v0.28.x has working faro traces
+    image: grafana/agent:v0.28.1
 
     declare_hostname: false
     appstate: "{{ global_appstate }}"

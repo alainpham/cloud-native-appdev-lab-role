@@ -61,7 +61,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -144,7 +144,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -222,7 +222,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 1,
       "gridPos": {
         "h": 7,
@@ -305,7 +305,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 1,
       "gridPos": {
         "h": 7,
@@ -388,7 +388,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 1,
       "gridPos": {
         "h": 7,
@@ -476,7 +476,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 1,
       "gridPos": {
         "h": 7,
@@ -564,7 +564,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 1,
       "gridPos": {
         "h": 7,
@@ -652,7 +652,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "description": "JVM thread count",
       "fill": 1,
       "gridPos": {
@@ -736,7 +736,7 @@
     {
       "cacheTimeout": null,
       "columns": [],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fontSize": "100%",
       "gridPos": {
         "h": 7,
@@ -832,7 +832,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 1,
       "gridPos": {
         "h": 7,
@@ -950,7 +950,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 1,
       "gridPos": {
         "h": 7,
@@ -1036,7 +1036,7 @@
       }
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1170,7 +1170,7 @@
       "type": "table"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1282,7 +1282,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "Prometheus",
+        "datasource": "grafanacloud-prom",
         "hide": 0,
         "includeAll": false,
         "label": "Namespace",
@@ -1302,7 +1302,7 @@
       {
         "allValue": null,
         "current": {},
-        "datasource": "Prometheus",
+        "datasource": "grafanacloud-prom",
         "hide": 0,
         "includeAll": false,
         "label": "Cluster Name",

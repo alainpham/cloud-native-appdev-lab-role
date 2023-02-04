@@ -55,7 +55,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -138,7 +138,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -216,7 +216,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 1,
       "gridPos": {
         "h": 8,
@@ -304,7 +304,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 1,
       "gridPos": {
         "h": 8,
@@ -389,7 +389,7 @@
     },
     {
       "cacheTimeout": null,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -471,7 +471,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -596,7 +596,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
 
       "fill": 1,
       "gridPos": {
@@ -685,7 +685,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -774,7 +774,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fill": 1,
       "gridPos": {
         "h": 7,
@@ -858,7 +858,7 @@
       }
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1073,7 +1073,7 @@
       "type": "table"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1288,7 +1288,7 @@
       "type": "table"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1521,7 +1521,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
 
       "fill": 1,
       "fillGradient": 0,
@@ -1608,7 +1608,7 @@
       }
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "grafanacloud-prom",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1695,7 +1695,7 @@
           "text": "",
           "value": ""
         },
-        "datasource": "Prometheus",
+        "datasource": "grafanacloud-prom",
         "hide": 0,
         "includeAll": false,
         "label": "Namespace",
@@ -1718,7 +1718,7 @@
           "text": "my-mirror-maker-2-cluster",
           "value": "my-mirror-maker-2-cluster"
         },
-        "datasource": "Prometheus",
+        "datasource": "grafanacloud-prom",
         "hide": 0,
         "includeAll": false,
         "label": "Cluster Name",

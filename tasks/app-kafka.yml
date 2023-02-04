@@ -217,47 +217,47 @@
   retries: 60
   delay: 2
 
-- name: "Manage kafkaui container state - {{appstate}} - {{appconfig.kafkaui.ip}}"
-  docker_container:
-    name: "kafkaui"
-    hostname: "kafkaui"
-    image: "{{appconfig.kafkaui.image}}"
-    state: "{{ appconfig[appname].appstate }}"
-    recreate: "{{ appconfig[appname].recreate }}"
-    restart_policy: unless-stopped
-    container_default_behavior: no_defaults
-    detach: true
-    user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
-    ports:
-    command:
-    env:
-      KAFKA_CLUSTERS_0_NAME: kafka.{{inventory_hostname}}
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "{{appconfig[appname].ip}}:9092"
-    labels: |
-      {
-        "traefik.http.services.kafkaui.loadbalancer.server.port": "8080",
-        "traefik.http.routers.kafkaui.service": "kafkaui",
-        "traefik.http.routers.kafkaui.entrypoints": "https",
-        "traefik.http.routers.kafkaui.tls": "true",
-        "traefik.http.routers.kafkaui.rule": "Host(`kafkaui.{{inventory_hostname}}`)",
-      }
-    volumes:
-    networks_cli_compatible: yes
-    network_mode: primenet
-    networks:
-      - name: primenet
-        ipv4_address: "{{appconfig.kafkaui.ip}}"
+# - name: "Manage kafkaui container state - {{appstate}} - {{appconfig.kafkaui.ip}}"
+#   docker_container:
+#     name: "kafkaui"
+#     hostname: "kafkaui"
+#     image: "{{appconfig.kafkaui.image}}"
+#     state: "{{ appconfig[appname].appstate }}"
+#     recreate: "{{ appconfig[appname].recreate }}"
+#     restart_policy: unless-stopped
+#     container_default_behavior: no_defaults
+#     detach: true
+#     user: "{{ appconfig[appname].exec_as_user }}:{{ appconfig[appname].exec_as_group }}"
+#     ports:
+#     command:
+#     env:
+#       KAFKA_CLUSTERS_0_NAME: kafka.{{inventory_hostname}}
+#       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "{{appconfig[appname].ip}}:9092"
+#     labels: |
+#       {
+#         "traefik.http.services.kafkaui.loadbalancer.server.port": "8080",
+#         "traefik.http.routers.kafkaui.service": "kafkaui",
+#         "traefik.http.routers.kafkaui.entrypoints": "https",
+#         "traefik.http.routers.kafkaui.tls": "true",
+#         "traefik.http.routers.kafkaui.rule": "Host(`kafkaui.{{inventory_hostname}}`)",
+#       }
+#     volumes:
+#     networks_cli_compatible: yes
+#     network_mode: primenet
+#     networks:
+#       - name: primenet
+#         ipv4_address: "{{appconfig.kafkaui.ip}}"
 
-- name: Check if kafkaui is up
-  when:  appconfig[appname].appstate == 'started'
-  uri:
-    url: "https://kafkaui.{{inventory_hostname}}"
-    method: GET
-    status_code: 200
-  register: result
-  until: result.status == 200
-  retries: 60
-  delay: 2
+# - name: Check if kafkaui is up
+#   when:  appconfig[appname].appstate == 'started'
+#   uri:
+#     url: "https://kafkaui.{{inventory_hostname}}"
+#     method: GET
+#     status_code: 200
+#   register: result
+#   until: result.status == 200
+#   retries: 60
+#   delay: 2
 
 - name: delete infra
   ansible.builtin.include_role:

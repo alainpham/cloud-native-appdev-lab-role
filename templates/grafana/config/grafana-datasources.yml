@@ -11,7 +11,7 @@ datasources:
     isDefault: false
     editable: false
 
-  - name: Prometheus-Mimir
+  - name: Prometheus
     uid: grafanacloud-prom
     type: prometheus
     access: proxy
