@@ -693,4 +693,4 @@ images:
   
   # Misc
   squid: ubuntu/squid:5.2-22.04_beta
-  eclipse-temurin: docker.io/eclipse-temurin:11.0.16.1_1-jre
+  eclipse-temurin: docker.io/eclipse-temurin:11.0.18_10-jre
