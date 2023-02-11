@@ -1,6 +1,6 @@
 ---
 - set_fact:
-    appname: static
+    appname: serve
 
 - name: provision infra
   ansible.builtin.include_role:
