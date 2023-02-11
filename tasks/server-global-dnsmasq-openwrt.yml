@@ -1,0 +1,18 @@
+---
+- name: set dhcp leases
+  ansible.builtin.raw: |
+    uci add dhcp host
+    uci set dhcp.@host[-1].name='{{ item.hostname.split(".")[0]  }}'
+    uci set dhcp.@host[-1].dns='1'
+    uci set dhcp.@host[-1].mac='{{ item.mac }}'
+    uci set dhcp.@host[-1].ip='{{ item.ip }}'
+    uci commit dhcp
+  args:
+    executable: /bin/sh
+  loop: "{{ dnsmasq.address }}"
+
+- name: commit
+  ansible.builtin.raw: |
+    /etc/init.d/dnsmasq restart
+  args:
+    executable: /bin/sh

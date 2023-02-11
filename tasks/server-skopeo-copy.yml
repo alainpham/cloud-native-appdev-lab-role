@@ -3,12 +3,12 @@
     imagename: "{{ rolesvar }}"
 
 - set_fact:
-    targetimagetag: "{{ docker.pullregistry }}/{{ images['imagename'] | regex_replace('.*/(.*)','\\1')  }}"
+    targetimagetag: "{{ docker.pullregistry }}/{{ images[imagename] | regex_replace('.*/(.*)','\\1')  }}"
 
 - name: debug
   debug:
-    msg: "skopeo copy docker://{{ images['imagename'] }} docker://{{ targetimagetag }}"
+    msg: "skopeo copy docker://{{ images[imagename] }} docker://{{ targetimagetag }}"
 
 - name: copy
   shell: |
-    skopeo copy docker://{{ images['imagename'] }} docker://{{ targetimagetag }}
+    skopeo copy docker://{{ images[imagename] }} docker://{{ targetimagetag }}
