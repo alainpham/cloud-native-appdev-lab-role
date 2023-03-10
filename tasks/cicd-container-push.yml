@@ -51,7 +51,7 @@
       docker build -f {{application.dockerfile}} \
       --label "gitrepo={{application.repo}}" \
       --label "dockerfile={{application.dockerfile}}" \
-      --label "buildVersion={{application.dockerfile}}" \
+      --label "buildVersion={{application.buildVersion}}" \
       -t {{application.artifactId}}:{{application.buildVersion}}-{{arch}} .
     else
       echo "CONTAINER_EXISTS_ALREADY"

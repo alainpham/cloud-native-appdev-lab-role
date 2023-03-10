@@ -583,7 +583,7 @@ apps:
     dockerfile: src/main/docker/Dockerfile.multiarch
     artifact: target/quarkus-app
     type: folder
-    buildVersion: "1.0.2"
+    buildVersion: "1.0.3"
     nextVersion:
     subfolder: 
     mavenrepo: https://admin:password@reposilite.awon.lan/releases
