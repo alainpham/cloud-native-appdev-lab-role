@@ -2,7 +2,7 @@ multitenancy_enabled: false
 
 ingester:
   ring:
-    min_ready_duration: 1
+    min_ready_duration: 1s
     replication_factor: 1
 
 blocks_storage:
