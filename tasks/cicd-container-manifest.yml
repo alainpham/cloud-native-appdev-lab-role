@@ -5,10 +5,10 @@
 
 - name: create docker manifest
   shell: | 
-     docker manifest create {{ application.1.1 }}/{{ application.0.0.artifactId }}:{{ application.0.0.buildVersion }} -a {{ application.1.1 }}/{{ application.0.0.artifactId }}:{{ application.0.0.buildVersion }}-{{ application.0.1 }}
-  loop: "{{ ( application | subelements('arch') ) | product(application | subelements('registries')) | list   }}"
+     docker manifest create {{ item[1] }}/{{ application.artifactId }}:{{ application.buildVersion }} -a {{ item[1] }}/{{ application.artifactId }}:{{ application.buildVersion }}-{{ item[0] }}
+  loop: "{{ ( application.arch ) | product(application.registries) }}"
 
 - name: create push multi arch manifest
   shell: | 
-    docker manifest push {{ application.1 }}/{{ application.0.artifactId }}:{{ application.0.buildVersion }}
-  loop: "{{  application | subelements('registries')   }}"
+    docker manifest push {{ item }}/{{ application.artifactId }}:{{ application.buildVersion }}
+  loop: "{{  application.registries   }}"

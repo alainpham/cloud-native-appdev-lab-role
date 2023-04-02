@@ -65,13 +65,13 @@
 
 - name: tag container images for registries
   shell: | 
-    docker tag {{application.0.artifactId}}:{{application.0.buildVersion}}-{{arch}} {{application.1}}/{{application.0.artifactId}}:{{application.0.buildVersion}}-{{arch}}
-  loop: "{{ apps | subelements('registries') }}"
+    docker tag {{application.artifactId}}:{{application.buildVersion}}-{{arch}} {{ item }}/{{application.artifactId}}:{{application.buildVersion}}-{{arch}}
+  loop: "{{ application.registries }}"
 
 - name: push container images to registries
   shell: | 
-    docker push {{application.1}}/{{application.0.artifactId}}:{{application.0.buildVersion}}-{{arch}}
-  loop: "{{ apps | subelements('registries') }}"
+    docker push {{ item }}/{{application.artifactId}}:{{application.buildVersion}}-{{arch}}
+  loop: "{{ application.registries }}"
 
 # - name: print repos
 #   shell: |
